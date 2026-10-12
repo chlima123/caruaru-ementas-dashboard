@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<title>Ementas — Câmara Regional de Caruaru · MPPE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0E2A33; --navy-2:#163a46; --navy-3:#1d4a58;
+  --lat:#B98A2F; --lat-2:#d3a44a; --lat-soft:rgba(185,138,47,.16);
+  --paper:#F6F4EE; --paper-2:#efece2; --card:#fff;
+  --ink:#1c2a30; --dim:#5c6b72; --muted:#8a979d;
+  --line:#d8d2c2; --ok:#2e7d5b; --warn:#a13a52;
+  --serif:"Fraunces","Iowan Old Style",Palatino,Georgia,serif;
+  --sans:"Public Sans","Segoe UI",-apple-system,Helvetica,Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+a{color:var(--navy-3)}
+header{background:var(--navy);color:#eef3f4;border-bottom:3px solid var(--lat)}
+.hwrap{max-width:1360px;margin:0 auto;padding:20px 26px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--lat-2)}
+h1{font-family:var(--serif);font-weight:600;font-size:29px;margin:6px 0 4px;letter-spacing:-.01em}
+.sub{color:#b9c6ca;font-size:13.5px;max-width:960px}
+.kpis{display:flex;flex-wrap:wrap;gap:26px;margin-top:16px;border-top:1px solid rgba(255,255,255,.14);padding-top:13px}
+.kpi b{display:block;font-family:var(--serif);font-size:22px;color:#fff;line-height:1.15}
+.kpi span{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#9fb0b5}
+main{max-width:1360px;margin:0 auto;padding:20px 26px 60px;display:grid;grid-template-columns:minmax(330px,410px) 1fr;gap:22px;align-items:start}
+@media (max-width:980px){main{grid-template-columns:1fr}.reader{position:static!important;max-height:none!important}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 2px rgba(14,42,51,.05)}
+.search-panel{padding:14px}
+.searchrow{display:flex;gap:8px;align-items:stretch}
+#search{flex:1;min-width:0}
+input#search{font-family:var(--sans);font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;
+  background:var(--paper-2);color:var(--ink);width:100%}
+input#search:focus{outline:2px solid var(--lat);outline-offset:1px;background:#fff}
+.modes{display:flex;gap:6px;margin-top:10px}
+.modes button{flex:1;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:8px 6px;
+  border:1px solid var(--line);background:var(--paper-2);color:var(--dim);border-radius:8px;cursor:pointer}
+.modes button[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.filters label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:3px}
+select{width:100%;font-family:var(--sans);font-size:13px;padding:8px 9px;border:1px solid var(--line);border-radius:8px;
+  background:var(--paper-2);color:var(--ink)}
+.hint{font-size:12px;color:var(--muted);margin-top:9px;line-height:1.5}
+.status{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.pill{border:1px solid var(--line);border-radius:999px;padding:2px 9px;background:var(--paper-2)}
+.pill.on{border-color:var(--lat);background:var(--lat-soft);color:#7a5a14}
+.pill.bad{border-color:var(--warn);color:var(--warn)}
+#rescount{font-family:var(--mono);font-size:11px;color:var(--dim);padding:14px 4px 6px;letter-spacing:.06em;text-transform:uppercase}
+#results{max-height:none;overflow:visible}
+.hit{padding:13px 15px;border-top:1px solid var(--line);cursor:pointer}
+.hit:hover{background:var(--paper-2)}
+.hit.sel{background:#fff;box-shadow:inset 3px 0 0 var(--lat)}
+.hit-top{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.badge{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:999px;
+  border:1px solid var(--line);color:var(--dim);background:var(--paper-2)}
+.badge.cl{background:var(--navy);color:#eef3f4;border-color:var(--navy)}
+.badge.tj{background:var(--lat-soft);color:#7a5a14;border-color:var(--lat)}
+.hit time{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-left:auto}
+.hit h3{font-family:var(--serif);font-size:16.5px;font-weight:600;margin:7px 0 2px;line-height:1.3}
+.hit .proc{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin:0}
+.hit .snip{font-size:12.8px;color:var(--dim);margin:6px 0 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+mark{background:var(--lat-soft);color:inherit;padding:0 1px;border-radius:2px}
+.reader{position:sticky;top:18px;max-height:calc(100vh - 36px);overflow:auto;padding:0}
+.rhead{padding:18px 22px 14px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card);z-index:2}
+.rhead h2{font-family:var(--serif);font-size:23px;font-weight:600;margin:8px 0 6px;line-height:1.25}
+.rbody{padding:18px 22px 40px}
+.grid{display:grid;grid-template-columns:160px 1fr;gap:6px 14px;font-size:13.5px;margin:0 0 18px}
+.grid dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+.grid dd{margin:0 0 6px}
+.sect-h{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--lat);border-bottom:1px solid var(--line);
+  padding-bottom:5px;margin:22px 0 12px}
+.ementa{background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--lat);border-radius:9px;padding:14px 16px;
+  font-size:14.5px;line-height:1.72;white-space:pre-wrap}
+.corpo p{margin:0 0 12px}
+.em{display:none}
+.em p{margin:0 0 14px;text-align:justify}
+.rmsg{padding:40px 26px;color:var(--muted);font-size:14px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.acts button{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:7px 11px;border:1px solid var(--line);
+  background:var(--paper-2);color:var(--dim);border-radius:8px;cursor:pointer}
+.acts button:hover{border-color:var(--lat);color:#7a5a14}
+footer{max-width:1360px;margin:0 auto;padding:0 26px 40px;color:var(--muted);font-size:12px}
+.note{border-top:1px solid var(--line);padding-top:12px}
+@media print{
+  header,.panel:first-child,footer,.acts{display:none!important}
+  main{display:block;padding:0}
+  .reader{position:static;max-height:none;border:0;box-shadow:none}
+  .readme-pane,.reader .rmsg{display:none}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <div class="eyebrow">Ministério Público de Pernambuco · Procuradoria de Justiça Cível</div>
+    <h1>Ementas da Câmara Regional de Caruaru</h1>
+    <div class="sub">Acervo dos pareceres e manifestações da <b>2ª Procuradora de Justiça</b> (Ana Joêmia Marques da Rocha)
+      junto às Turmas da Câmara Regional de Caruaru — cada registro traz os dados do processo e a reprodução da ementa
+      (ou o teor integral, quando o anexo não tem ementa formal). Busca <b>semântica</b>: descreva o caso, não precisa acertar as palavras.</div>
+    <div class="kpis" id="kpis"></div>
+  </div>
+</header>
+<main>
+  <section class="panel search-panel">
+    <div class="searchrow"><input id="search" type="search" placeholder="Ex.: criança com autismo e plano de saúde negando terapia" autocomplete="off" spellcheck="false"></div>
+    <div class="modes">
+      <button id="modeSem" aria-pressed="true">Semântica</button>
+      <button id="modeText" aria-pressed="false">Texto exato</button>
+    </div>
+    <div class="filters">
+      <div><label for="f-cl">Classe</label><select id="f-cl"></select></div>
+      <div><label for="f-tj">Documento</label><select id="f-tj"></select></div>
+      <div><label for="f-mes">Mês</label><select id="f-mes"></select></div>
+      <div><label for="f-rel">Relator</label><select id="f-rel"></select></div>
+    </div>
+    <div class="status">
+      <span id="semStatus" class="pill">busca semântica: aguardando consulta</span>
+      <span class="pill">/ foca a busca · ↑↓ navega</span>
+    </div>
+    <div class="hint">A busca semântica carrega um modelo multilíngue no navegador na primeira consulta (~1 min); os vetores já vêm embutidos no arquivo, então não há envio de dado a servidor nenhum.</div>
+    <div id="rescount"></div>
+    <div id="results"></div>
+  </section>
+  <section class="panel reader" id="reader">
+    <div class="rmsg">Selecione um registro à esquerda — ou faça uma busca — para ler a ementa completa.</div>
+  </section>
+</main>
+<footer>
+  <div class="note">Fonte: pasta <i>Ementas</i> (Google Drive) · <span id="gerado"></span> · Página restrita — não indexada por buscadores.
+    Os nomes das partes integram os autos e são mantidos apenas para conferência.</div>
+</footer>
+<template id="tpl-hit">
+  <article class="hit">
+    <div class="hit-top"><span class="badge cl"></span><span class="badge tj"></span><time></time></div>
+    <h3></h3>
+    <p class="proc"></p>
+    <p class="snip"></p>
+  </article>
+</template>
+<script>
+const DATA = __DATA__;
+const DRIVE_URL = __DRIVE__;   // vem de config.json (fora do repositório)
+const MODO_INICIAL = 'sem';
+let mode = MODO_INICIAL, sel = -1, hits = [], semModel = null, semLoading = false, semFailed = false;
+const $ = (id) => document.getElementById(id);
+const norm = (s) => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+DATA.forEach((r) => { r._n = norm(r.s); });
+
+/* ---------- embeddings embutidos (base64 -> Float32Array) ---------- */
+function decodeEmb(b64){
+  const bin = atob(b64);
+  const buf = new ArrayBuffer(bin.length);
+  const u8 = new Uint8Array(buf);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return new Float32Array(buf);
+}
+DATA.forEach((r) => { r._vs = (r.vs || []).map(decodeEmb); });
+function dot(a, b){ let s = 0; for (let i = 0; i < a.length; i++) s += a[i] * b[i]; return s; }
+
+/* ---------- filtros ---------- */
+const contagem = (campo) => {
+  const m = new Map();
+  DATA.forEach((r) => { const v = r[campo] || '—'; m.set(v, (m.get(v) || 0) + 1); });
+  return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+};
+function opcoes(el, rotulo, campo){
+  const atual = el.value;
+  el.innerHTML = '<option value="">' + rotulo + '</option>' +
+    contagem(campo).map(([v, n]) => '<option value="' + v.replace(/"/g, '&quot;') + '">' + v + ' (' + n + ')</option>').join('');
+  el.value = atual;
+}
+opcoes($('f-cl'), 'Todas as classes', 'cl');
+opcoes($('f-tj'), 'Todos', 'tj');
+opcoes($('f-rel'), 'Todos', 'rel');
+(function(){
+  const m = new Map();
+  DATA.forEach((r) => { const k = (r.iso || '').slice(0, 7); if (k) m.set(k, (m.get(k) || 0) + 1); });
+  const nomeMes = { '2026-09': 'Setembro/2026', '2026-10': 'Outubro/2026' };
+  $('f-mes').innerHTML = '<option value="">Todos os meses</option>' + [...m.keys()].sort()
+    .map((k) => '<option value="' + k + '">' + (nomeMes[k] || k) + ' (' + m.get(k) + ')</option>').join('');
+})();
+
+/* ---------- KPIs ---------- */
+(function(){
+  const comEmenta = DATA.filter((r) => r.e).length;
+  const classes = new Set(DATA.map((r) => r.cl)).size;
+  const relatores = new Set(DATA.flatMap((r) => r.rel ? [r.rel] : [])).size;
+  const datas = DATA.map((r) => r.iso).filter(Boolean).sort();
+  const fmt = (iso) => iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4);
+  const kpi = [[DATA.length, 'documentos no acervo'], [comEmenta, 'com ementa formal'],
+               [DATA.length - comEmenta, 'teor integral (sem ementa)'], [classes, 'classes processuais'],
+               [relatores, 'relatores'], [fmt(datas[0]) + ' – ' + fmt(datas[datas.length - 1]), 'período']];
+  $('kpis').innerHTML = kpi.map(([b, s]) => '<div class="kpi"><b>' + b + '</b><span>' + s + '</span></div>').join('');
+  $('gerado').textContent = 'acervo de ' + DATA.length + ' documentos, atualizado em ' + new Date().toLocaleDateString('pt-BR');
+})();
+
+/* ---------- pontuação textual ---------- */
+function termos(q){ return norm(q).split(/\s+/).filter((t) => t.length >= 3); }
+function pontuaTexto(r, ts){
+  if (!ts.length) return 1;
+  let pontos = 0;
+  for (const t of ts){
+    let ocorr = 0, i = r._n.indexOf(t);
+    while (i >= 0 && ocorr < 12){ ocorr++; i = r._n.indexOf(t, i + t.length); }
+    if (!ocorr) return 0;
+    const peso = (norm(r.t).includes(t) ? 3 : 0) + (norm(r.ass).includes(t) ? 2 : 0) + (norm(r.p).includes(t) ? 2 : 0);
+    pontos += ocorr * (1 + peso);
+  }
+  return Math.log(1 + pontos);
+}
+function passaFiltro(r){
+  return (!$('f-cl').value || r.cl === $('f-cl').value) &&
+         (!$('f-tj').value || r.tj === $('f-tj').value) &&
+         (!$('f-mes').value || (r.iso || '').slice(0, 7) === $('f-mes').value) &&
+         (!$('f-rel').value || r.rel === $('f-rel').value);
+}
+function trecho(r, ts){
+  const txt = r.e || r.c || '';
+  let p = -1;
+  for (const t of ts){ const i = r._n.indexOf(t); if (i >= 0 && (p < 0 || i < p)) p = i; }
+  if (p < 0) return '';
+  const ini = Math.max(0, p - 90);
+  return (ini > 0 ? '… ' : '') + txt.slice(ini, ini + 260);
+}
+function realce(txt, ts){
+  let out = txt.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  for (const t of ts) out = out.replace(new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>');
+  return out;
+}
+
+/* ---------- busca ---------- */
+function doSearch(){
+  const q = $('search').value.trim();
+  const ts = termos(q);
+  if (mode === 'sem' && q.length >= 3){ buscaSemantica(q, ts).then((r) => render(r, ts)); return; }
+  render(ranquearTexto(ts), ts);
+}
+function ranquearTexto(ts){
+  return DATA.map((r, i) => ({ r, i, s: passaFiltro(r) ? pontuaTexto(r, ts) : 0 }))
+             .filter((x) => x.s > 0).sort((a, b) => b.s - a.s || (b.r.iso || '').localeCompare(a.r.iso || ''));
+}
+async function buscaSemantica(q, ts){
+  const texto = ranquearTexto(ts);
+  if (!semModel){ carregaModelo(); return texto; }
+  try {
+    $('semStatus').textContent = 'calculando…';
+    const out = await semModel(q, { pooling: 'mean', normalize: true });   // await obrigatório
+    const qv = Array.from(out.data);
+    const maxT = Math.max(0.0001, ...texto.map((x) => x.s));
+    const porIndice = new Map(texto.map((x) => [x.i, x.s / maxT]));
+    const sem = [];
+    DATA.forEach((r, i) => {
+      if (!passaFiltro(r) || !r._vs.length) return;
+      let melhor = -1, off = 0;
+      for (let k = 0; k < r._vs.length; k++){
+        const s = dot(qv, r._vs[k]);
+        if (s > melhor){ melhor = s; off = r.vo[k] || 0; }
+      }
+      const lex = (porIndice.get(i) || 0) * (ts.length ? 1 : 0);
+      sem.push({ r, i, s: melhor + 0.30 * lex, off });
+    });
+    const out2 = sem.filter((x) => x.s > 0.35).sort((a, b) => b.s - a.s);
+    $('semStatus').className = 'pill on';
+    $('semStatus').textContent = 'busca semântica ativa · ' + out2.length + ' resultados';
+    return out2.length ? out2 : sem.sort((a, b) => b.s - a.s).slice(0, 12);
+  } catch (e){
+    $('semStatus').textContent = 'semântica falhou — usando texto';
+    return texto;
+  }
+}
+function carregaModelo(){
+  if (semModel || semLoading || semFailed) return;
+  semLoading = true;
+  $('semStatus').textContent = 'carregando modelo (~1 min, só na 1ª vez)…';
+  import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0/dist/transformers.min.js')
+    .then(async (mod) => {
+      const { pipeline, env } = mod;
+      env.allowRemoteModels = true;
+      semModel = await pipeline('feature-extraction', 'Xenova/paraphrase-multilingual-MiniLM-L12-v2');
+      semLoading = false;
+      $('semStatus').className = 'pill on';
+      const q = $('search').value.trim();
+      if (mode === 'sem' && q.length >= 3) doSearch();
+    })
+    .catch(() => {
+      semFailed = true; semLoading = false;
+      $('semStatus').className = 'pill bad';
+      $('semStatus').textContent = 'modelo indisponível — busca por texto ativa';
+    });
+}
+
+/* ---------- render ---------- */
+function render(linhas, ts){
+  if (!linhas.length) linhas = DATA.map((r, i) => ({ r, i, s: passaFiltro(r) ? 1 : 0 }))
+                                 .filter((x) => x.s)
+                                 .sort((a, b) => (b.r.iso || '').localeCompare(a.r.iso || ''));
+  hits = linhas;
+  const cont = $('results');
+  cont.innerHTML = '';
+  const tpl = $('tpl-hit');
+  linhas.forEach((x, k) => {
+    const el = tpl.content.firstElementChild.cloneNode(true);
+    el.dataset.i = x.i;
+    el.dataset.k = k;
+    el.querySelector('.cl').textContent = x.r.cl || '—';
+    el.querySelector('.tj').textContent = x.r.tj || '—';
+    el.querySelector('time').textContent = x.r.dt || '';
+    el.querySelector('h3').textContent = x.r.ass || x.r.t;
+    el.querySelector('.proc').textContent = (x.r.p || x.r.t) + (x.r.rel ? ' · ' + x.r.rel : '');
+    const porTrecho = (x.off != null) ? ((x.off > 0 ? '… ' : '') + x.r.s.slice(x.off, x.off + 300)) : '';
+    const snip = trecho(x.r, ts) || porTrecho || (x.r.e ? x.r.e.slice(0, 240) : x.r.c.slice(0, 240));
+    el.querySelector('.snip').innerHTML = realce(snip, ts);
+    el.addEventListener('click', () => abrir(k));
+    cont.appendChild(el);
+  });
+  const fil = DATA.filter(passaFiltro).length;
+  $('rescount').textContent = linhas.length + (linhas.length === 1 ? ' registro' : ' registros') +
+    ' · ' + fil + ' no filtro' + (ts.length ? ' · termos: ' + ts.join(', ') : '');
+  if (sel >= linhas.length) sel = -1;
+  if (linhas.length && sel < 0) abrir(0, false);
+}
+const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+function abrir(k, rolar){
+  sel = k;
+  document.querySelectorAll('.hit').forEach((el) => el.classList.toggle('sel', Number(el.dataset.k) === k));
+  if (rolar === false && !hits.length) return;
+  const r = hits[k] && hits[k].r;
+  if (!r) return;
+  const dados = [['Processo', r.p], ['Classe', r.cl], ['Órgão julgador', r.oj], ['Relator', r.rel],
+                 ['Tipo de documento', r.tj], ['Procuradora', r.pj]]
+    .filter(([, v]) => v).map(([k2, v]) => '<dt>' + k2 + '</dt><dd>' + esc(v) + '</dd>').join('') +
+    r.pt.map((x) => '<dt>' + esc(x.k) + '</dt><dd>' + esc(x.v) + '</dd>').join('');
+  const corpo = (r.c || '').split(/\n{2,}/).map((p) => '<p>' + esc(p.trim()) + '</p>').join('');
+  const ementa = r.e ? '<div class="sect-h">Ementa</div><div class="ementa">' + esc(r.e) + '</div>'
+                     : '<div class="sect-h">Teor do documento (sem ementa formal)</div><div class="corpo">' + corpo + '</div>';
+  $('reader').innerHTML =
+    '<div class="rhead"><div class="eyebrow" style="color:#7a5a14">' + esc(r.t) + '</div>' +
+    '<h2>' + esc(r.ass || r.t) + '</h2>' +
+    '<div class="hit-top"><span class="badge cl">' + esc(r.cl || '—') + '</span><span class="badge tj">' + esc(r.tj || '—') + '</span>' +
+    '<time style="margin-left:0">' + esc(r.dt || '') + '</time></div></div>' +
+    '<div class="rbody"><dl class="grid">' + dados + '</dl>' + ementa +
+    '<div class="acts">' +
+      '<button data-copiar>Copiar ementa</button>' +
+      '<button data-imprimir>Imprimir</button>' +
+      (DRIVE_URL ? '<button data-drive>Abrir a pasta no Drive</button>' : '') +
+    '</div></div>';
+  $('reader').querySelector('[data-copiar]').addEventListener('click', (ev) => {
+    const txt = (r.tj || 'Ementa') + ' — ' + (r.ass || '') + ' · Processo ' + (r.p || '') + '\n' +
+                'Relator: ' + (r.rel || '—') + ' · Órgão: ' + (r.oj || '—') + '\n\n' +
+                (r.e ? 'EMENTA: ' + r.e : (r.c || '').slice(0, 4000));
+    navigator.clipboard.writeText(txt).then(() => {
+      ev.target.textContent = 'copiado ✓';
+      setTimeout(() => { ev.target.textContent = 'Copiar ementa'; }, 1600);
+    });
+  });
+  $('reader').querySelector('[data-imprimir]').addEventListener('click', () => window.print());
+  const btDrive = $('reader').querySelector('[data-drive]');
+  if (btDrive) btDrive.addEventListener('click', () => window.open(DRIVE_URL, '_blank', 'noopener'));
+  if (rolar) document.querySelector('.hit.sel').scrollIntoView({ block: 'nearest' });
+}
+
+/* ---------- eventos ---------- */
+let tmr = null;
+$('search').addEventListener('input', () => { clearTimeout(tmr); tmr = setTimeout(() => { sel = -1; doSearch(); }, 220); });
+['f-cl', 'f-tj', 'f-mes', 'f-rel'].forEach((id) => $(id).addEventListener('change', () => { sel = -1; doSearch(); }));
+$('modeSem').addEventListener('click', () => { mode = 'sem'; $('modeSem').setAttribute('aria-pressed', 'true'); $('modeText').setAttribute('aria-pressed', 'false'); doSearch(); });
+$('modeText').addEventListener('click', () => { mode = 'text'; $('modeText').setAttribute('aria-pressed', 'true'); $('modeSem').setAttribute('aria-pressed', 'false'); doSearch(); });
+document.addEventListener('keydown', (ev) => {
+  if (ev.key === '/' && document.activeElement !== $('search')){ ev.preventDefault(); $('search').focus(); }
+  else if (ev.key === 'Escape'){ $('search').value = ''; sel = -1; doSearch(); }
+  else if ((ev.key === 'ArrowDown' || ev.key === 'ArrowUp') && hits.length){
+    ev.preventDefault();
+    sel = Math.min(hits.length - 1, Math.max(0, (sel < 0 ? -1 : sel) + (ev.key === 'ArrowDown' ? 1 : -1)));
+    abrir(sel);
+  }
+});
+render(DATA.map((r, i) => ({ r, i, s: 1 })).sort((a, b) => (b.r.iso || '').localeCompare(a.r.iso || '')), []);
+</script>
+__GATE__
+</body>
+</html>

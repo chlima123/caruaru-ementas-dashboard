@@ -1,0 +1,18 @@
+# Dados e artefatos gerados — contêm o TEXTO dos pareceres (nomes de partes).
+# Nada disto vai para o repositório: o código é público, o acervo não.
+fonte/
+dados.json
+index.html
+backup/
+.build.log
+.pull.err
+.fonte.sha1
+
+# configuração local (link da pasta no Drive, ids)
+config.json
+
+__pycache__/
+*.pyc
+bloco*.js
+
+# OBS: .vercel/ entra no repo de propósito (projectId/orgId do projeto — não é segredo)
