@@ -89,7 +89,7 @@ python3 verificar.py http://127.0.0.1:8899/index.html
 python3 verificar.py https://caruaru-ementas.vercel.app
 ```
 
-O `index.html` publicado tem ~940 KB (o acervo inteiro + os vetores). O `build_dados.py` leva ~1 min
+O `index.html` publicado tem ~1,3 MB com 66 documentos (o acervo inteiro + os vetores). O `build_dados.py` leva ~1 min
 (baixa ~458 MB do modelo na primeira vez e fica em cache em `~/.cache/huggingface`).
 
 ## Privacidade — o que **não** está aqui
