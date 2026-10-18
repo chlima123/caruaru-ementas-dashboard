@@ -53,11 +53,10 @@ select{width:100%;font-family:var(--sans);font-size:13px;padding:8px 9px;border:
 .citrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 @media (max-width:560px){.citrow{grid-template-columns:1fr}}
 .cit label{font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--lat);display:block;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cit input{width:100%;font-family:var(--sans);font-size:13.5px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;
+.cit input,.cit select{width:100%;font-family:var(--sans);font-size:13px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;
   background:var(--paper-2);color:var(--ink)}
-.cit input:focus{outline:2px solid var(--lat);outline-offset:1px;background:#fff}
-.cit input::placeholder{color:var(--muted);font-size:12.5px}
-.cit.on input{border-color:var(--lat);background:#fff}
+.cit input:focus,.cit select:focus{outline:2px solid var(--lat);outline-offset:1px;background:#fff}
+.cit.on select,.cit.on input{border-color:var(--lat);background:#fff;font-weight:600}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .chips:empty{display:none}
 .chip{font-family:var(--mono);font-size:10px;letter-spacing:.03em;border:1px solid var(--line);border-radius:999px;padding:3px 9px;
@@ -142,13 +141,11 @@ footer{max-width:1360px;margin:0 auto;padding:0 26px 40px;color:var(--muted);fon
     <div class="citrow">
       <div class="cit" id="cit-leg">
         <label for="f-leg">[legislação] · artigo e diploma</label>
-        <input id="f-leg" type="search" list="dl-leg" placeholder="Ex.: CC art. 1.694 · CDC art. 14" autocomplete="off" spellcheck="false">
-        <datalist id="dl-leg"></datalist>
+        <select id="f-leg" aria-label="Filtrar por citação de legislação"></select>
       </div>
       <div class="cit" id="cit-jur">
         <label for="f-jur">[jurisprudência] · decisão, súmula, tema</label>
-        <input id="f-jur" type="search" list="dl-jur" placeholder="Ex.: Tema 106 · Súmula 7 · REsp 1.657.156" autocomplete="off" spellcheck="false">
-        <datalist id="dl-jur"></datalist>
+        <select id="f-jur" aria-label="Filtrar por citação de jurisprudência"></select>
       </div>
     </div>
     <div class="chips" id="chips-leg"></div>
@@ -163,10 +160,10 @@ footer{max-width:1360px;margin:0 auto;padding:0 26px 40px;color:var(--muted);fon
       <span id="semStatus" class="pill">busca semântica: aguardando consulta</span>
       <span class="pill">/ busca · l [legislação] · j [jurisprudência] · ↑↓ navega · Esc limpa</span>
     </div>
-    <div class="hint">Os dois campos de citação varrem <b>só</b> o campo de citações de cada registro — <b>[legislação]</b> por artigo e diploma
-      (CC art. 1.694, CDC art. 14, Lei 13.146/2015) e <b>[jurisprudência]</b> por decisão, súmula ou tema (Tema 106, Súmula 7, AgInt no AREsp 2.084.990).
-      Os critérios somam com a busca principal e com os filtros (todos precisam casar). Digite sem acento e sem pontos: <b>1694</b> acha <i>1.694</i>;
-      deixe em branco para não filtrar.</div>
+    <div class="hint">As duas <b>listas suspensas</b> de citação varrem <b>só</b> o campo de citações de cada registro — <b>[legislação]</b> traz os
+      dispositivos por artigo e diploma (agrupados por diploma) e <b>[jurisprudência]</b> traz decisões, súmulas e temas (agrupados por tribunal),
+      cada item com o número de registros entre colchetes. Os critérios somam com a busca principal e com os filtros (todos precisam casar);
+      deixe em <i>todas as citações</i> para não filtrar.</div>
     <div class="hint">A busca semântica carrega um modelo multilíngue no navegador na primeira consulta (~1 min); os vetores já vêm embutidos no arquivo, então não há envio de dado a servidor nenhum.</div>
     <div id="rescount"></div>
     <div id="results"></div>
@@ -378,17 +375,17 @@ function render(linhas, ts){
   const cont = $('results');
   cont.innerHTML = '';
   if (!linhas.length){
-    cont.innerHTML = '<div class="vazio">Nenhum registro casa ' +
-      (tl.length ? '<b>[legislação]</b> "' + esc($('f-leg').value.trim()) + '"' : '') +
+    cont.innerHTML = '<div class="vazio">Nenhum registro casa, ao mesmo tempo, ' +
+      (tl.length ? '<b>[legislação]</b> "' + esc(rotuloSel('f-leg')) + '"' : '') +
       (tl.length && tj.length ? ' e ' : '') +
-      (tj.length ? '<b>[jurisprudência]</b> "' + esc($('f-jur').value.trim()) + '"' : '') +
+      (tj.length ? '<b>[jurisprudência]</b> "' + esc(rotuloSel('f-jur')) + '"' : '') +
       (ts.length ? ((tl.length || tj.length) ? ' com a busca ' : 'a busca ') + '"' + esc($('search').value.trim()) + '"' : '') +
-      '.<br>Os campos de citação cobrem <b>' + COBERTURA.leg + ' de ' + DATA.length + '</b> registros ([legislação]) e <b>' +
-      COBERTURA.jur + ' de ' + DATA.length + '</b> ([jurisprudência]) — nos demais a ementa não traz o campo. ' +
-      'Tente só o número do artigo (ex.: <b>1694</b>) ou limpe um critério.</div>';
+      '.<br>As listas de citação cobrem <b>' + COBERTURA.leg + ' de ' + DATA.length + '</b> registros ([legislação]) e <b>' +
+      COBERTURA.jur + ' de ' + DATA.length + '</b> ([jurisprudência]) — nos demais a ementa não traz o campo na origem. ' +
+      'Escolha outra citação nas listas ou limpe um critério.</div>';
     sel = -1;
     resumo(0, ts, tl, tj);
-    pintaChips(tl, tj);
+    pintaChips();
     return;
   }
   const tpl = $('tpl-hit');
@@ -415,7 +412,7 @@ function render(linhas, ts){
     cont.appendChild(el);
   });
   resumo(linhas.length, ts, tl, tj);
-  pintaChips(tl, tj);
+  pintaChips();
   if (sel >= linhas.length) sel = -1;
   if (linhas.length && sel < 0) abrir(0, false);
 }
@@ -423,13 +420,13 @@ function resumo(n, ts, tl, tj){
   const fil = DATA.filter(passaFiltro).length;
   const partes = [n + (n === 1 ? ' registro' : ' registros'), fil + ' no filtro'];
   if (ts.length) partes.push('termos: ' + ts.join(', '));
-  if (tl.length) partes.push('[legislação]: ' + tl.join(', '));
-  if (tj.length) partes.push('[jurisprudência]: ' + tj.join(', '));
+  if (tl.length) partes.push('[legislação]: ' + rotuloSel('f-leg'));
+  if (tj.length) partes.push('[jurisprudência]: ' + rotuloSel('f-jur'));
   $('rescount').textContent = partes.join(' · ');
 }
 const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-/* ---------- acervo de citações: chips + sugestões (datalist) ---------- */
+/* ---------- acervo de citações: listas suspensas + chips de atalho ---------- */
 /* Uma "citação" é a unidade diplomática/decisão, não o pedaço cortado no ';':
    em "CPC, arts. 282, § 1º; 341; 355, I; 370, parágrafo único" os pedaços 341 / 355, I são
    continuação da MESMA citação — sem juntá-los o chip vira "355, I", que não serve de nada. */
@@ -450,39 +447,73 @@ function unidadesCit(campo){
 }
 const CITS = { l: unidadesCit('l'), j: unidadesCit('j') };
 const COBERTURA = { leg: DATA.filter((r) => r.l).length, jur: DATA.filter((r) => r.j).length };
-function preencheDatalist(id, campo){
-  $(id).innerHTML = CITS[campo].slice(0, 400)
-    .map(([c]) => '<option value="' + esc(c).replace(/"/g, '&quot;') + '"></option>').join('');
+/* Agrupa por diploma (legislação) ou por tribunal (jurisprudência) — o "cabeçalho" da unidade. */
+function grupoCit(campo, t){
+  if (campo === 'l'){
+    const cab = t.split(',')[0].trim();
+    if (/^(?:arts?\.|§|\d|par[áa]grafo)/i.test(cab)) return 'Outros dispositivos';
+    return cab.length > 30 ? cab.slice(0, 30) + '…' : cab;
+  }
+  const p = (t.match(/^([A-ZÀ-Ý][A-Za-zÀ-ÿ]*)/) || [null, ''])[1];
+  return (/^(?:STF|STJ|TST|TSE|TNU|TRF\d?|TJPE|TJ-PE|TJ[A-Z]{2})$/.test(p)) ? p : 'Outros tribunais e súmulas';
 }
-function pintaChips(tl, tj){
-  [['l', 'chips-leg', 'f-leg', tl], ['j', 'chips-jur', 'f-jur', tj]].forEach(([campo, id, alvo, tks]) => {
+function montaLista(id, campo){
+  const grupos = new Map();
+  CITS[campo].forEach(([t, n]) => {
+    const g = grupoCit(campo, t);
+    if (!grupos.has(g)) grupos.set(g, []);
+    grupos.get(g).push([t, n]);
+  });
+  const ordem = [...grupos.entries()]
+    .sort((a, b) => b[1].reduce((s, [, n]) => s + n, 0) - a[1].reduce((s, [, n]) => s + n, 0) ||
+                     a[0].localeCompare(b[0], 'pt-BR'));
+  const html = ['<option value="">— ' +
+    (campo === 'l' ? 'todas as citações de legislação' : 'todas as citações de jurisprudência') +
+    ' (' + CITS[campo].length + ') —</option>'];
+  ordem.forEach(([g, itens]) => {
+    html.push('<optgroup label="' + esc(g) + ' · ' + itens.length + '">' +
+      itens.map(([t, n]) => '<option value="' + esc(t).replace(/"/g, '&quot;') + '">' +
+        esc(t.length > 100 ? t.slice(0, 100) + '…' : t) + '  [' + n + ']</option>').join('') + '</optgroup>');
+  });
+  $(id).innerHTML = html.join('');
+}
+montaLista('f-leg', 'l');
+montaLista('f-jur', 'j');
+function rotuloSel(id){
+  const el = $(id), o = el.options[el.selectedIndex];
+  if (!o || !o.value) return '';
+  const txt = (o.textContent || '').replace(/\s*\[\d+\]\s*$/, '');
+  return txt.length > 70 ? txt.slice(0, 70) + '…' : txt;
+}
+function pintaChips(){
+  [['l', 'chips-leg', 'f-leg'], ['j', 'chips-jur', 'f-jur']].forEach(([campo, id, alvo]) => {
     const el = $(id);
-    const lista = CITS[campo].filter(([c]) => {
-      if (!tks.length) return true;                    // sem consulta: as citações mais frequentes
-      const nc = normCite(c);
-      return tks.every((t) => nc.indexOf(t) >= 0);
-    }).slice(0, 8);
-    el.innerHTML = lista.map(([c, n]) =>
+    el.innerHTML = CITS[campo].slice(0, 8).map(([c, n]) =>
       '<span class="chip" data-cit="' + esc(c).replace(/"/g, '&quot;') + '" title="' + esc(c) + '">' +
       esc(c.length > 44 ? c.slice(0, 44) + '…' : c) + ' <b>' + n + '</b></span>').join('');
     el.querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => {
-      $(alvo).value = b.dataset.cit;
+      const s = $(alvo);
+      s.value = b.dataset.cit;
+      if (s.value !== b.dataset.cit){        // segurança: casa pela forma normalizada
+        const alvoN = normCite(b.dataset.cit);
+        const opt = [...s.options].find((o) => o.value && normCite(o.value) === alvoN);
+        if (opt) s.value = opt.value;
+      }
       sel = -1;
       doSearch();
     }));
   });
 }
-preencheDatalist('dl-leg', 'l');
-preencheDatalist('dl-jur', 'j');
+pintaChips();
 function citacoesBox(r){
   /* painel "por que este registro casou": só aparece com campo de citação ativo */
   const tl = tksLeg(), tj = tksJur();
   if (!tl.length && !tj.length) return '';
   const b = [];
   if (r.l) b.push('<div class="citbox"><span class="rot">[legislação] campo indexado' +
-    (tl.length ? ' — casa com "' + esc($('f-leg').value.trim()) + '"' : '') + '</span>' + realce(r.l, tl) + '</div>');
+    (tl.length ? ' — seleção: ' + esc(rotuloSel('f-leg')) : '') + '</span>' + realce(r.l, tl) + '</div>');
   if (r.j) b.push('<div class="citbox"><span class="rot">[jurisprudência] campo indexado' +
-    (tj.length ? ' — casa com "' + esc($('f-jur').value.trim()) + '"' : '') + '</span>' + realce(r.j, tj) + '</div>');
+    (tj.length ? ' — seleção: ' + esc(rotuloSel('f-jur')) : '') + '</span>' + realce(r.j, tj) + '</div>');
   return b.length ? '<div class="sect-h">Campo de citações</div>' + b.join('') : '';
 }
 function abrir(k, rolar){
@@ -527,12 +558,9 @@ function abrir(k, rolar){
 /* ---------- eventos ---------- */
 let tmr = null;
 $('search').addEventListener('input', () => { clearTimeout(tmr); tmr = setTimeout(() => { sel = -1; doSearch(); }, 220); });
-['f-leg', 'f-jur'].forEach((id) => $(id).addEventListener('input', () => {
-  marcaCampos();
-  clearTimeout(tmr);
-  tmr = setTimeout(() => { sel = -1; doSearch(); }, 220);
+['f-leg', 'f-jur', 'f-cl', 'f-tj', 'f-mes', 'f-rel'].forEach((id) => $(id).addEventListener('change', () => {
+  marcaCampos(); sel = -1; doSearch();
 }));
-['f-cl', 'f-tj', 'f-mes', 'f-rel'].forEach((id) => $(id).addEventListener('change', () => { sel = -1; doSearch(); }));
 $('modeSem').addEventListener('click', () => { mode = 'sem'; $('modeSem').setAttribute('aria-pressed', 'true'); $('modeText').setAttribute('aria-pressed', 'false'); doSearch(); });
 $('modeText').addEventListener('click', () => { mode = 'text'; $('modeText').setAttribute('aria-pressed', 'true'); $('modeSem').setAttribute('aria-pressed', 'false'); doSearch(); });
 document.addEventListener('keydown', (ev) => {
@@ -545,7 +573,8 @@ document.addEventListener('keydown', (ev) => {
   else if (ev.key === 'Escape'){
     $('search').value = ''; $('f-leg').value = ''; $('f-jur').value = '';
     marcaCampos(); sel = -1; doSearch(); }
-  else if ((ev.key === 'ArrowDown' || ev.key === 'ArrowUp') && hits.length){
+  else if ((ev.key === 'ArrowDown' || ev.key === 'ArrowUp') && hits.length &&
+           (ev.target && ev.target.tagName) !== 'SELECT'){
     ev.preventDefault();
     sel = Math.min(hits.length - 1, Math.max(0, (sel < 0 ? -1 : sel) + (ev.key === 'ArrowDown' ? 1 : -1)));
     abrir(sel);

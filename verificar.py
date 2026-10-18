@@ -51,7 +51,7 @@ with sync_playwright() as p:
     pg.select_option("#f-mes", "")
     pg.wait_for_timeout(400)
 
-    # ---- campos de citação: [legislação] e [jurisprudência] ----
+    # ---- listas suspensas de citação: [legislação] e [jurisprudência] ----
     def hits(n=3):
         return pg.eval_on_selector_all(".hit h3", "e=>e.slice(0,%d).map(x=>x.textContent)" % n)
 
@@ -59,37 +59,49 @@ with sync_playwright() as p:
         v = pg.query_selector(".hit .snip")
         return (v.text_content() if v else "")[:150]
 
+    def escolhe(id_campo, agulha):
+        val = pg.eval_on_selector(id_campo,
+            "(el, a) => { const o = [...el.options].find((o) => o.value && new RegExp(a, 'i').test(o.value)); return o ? o.value : ''; }",
+            agulha)
+        if val:
+            pg.select_option(id_campo, val)
+            pg.wait_for_timeout(600)
+        return val
+
+    print("opções nas listas:", pg.eval_on_selector_all("#f-leg option", "e=>e.length"),
+          "legislação /", pg.eval_on_selector_all("#f-jur option", "e=>e.length"), "jurisprudência",
+          "| grupos:", pg.eval_on_selector_all("#f-leg optgroup", "e=>e.length"), "/",
+          pg.eval_on_selector_all("#f-jur optgroup", "e=>e.length"))
+    print("grupos leg:", pg.eval_on_selector_all("#f-leg optgroup", "e=>e.slice(0,4).map(x=>x.label)"))
+    print("grupos jur:", pg.eval_on_selector_all("#f-jur optgroup", "e=>e.slice(0,4).map(x=>x.label)"))
     pg.fill("#search", "")
-    pg.fill("#f-leg", "1694")
-    pg.wait_for_timeout(600)
-    print("[legislação] '1694' →", pg.text_content("#rescount"), "|", hits())
+    print("escolha leg '1.694' →", escolhe("#f-leg", r"1\.694"), "|", pg.text_content("#rescount"), "|", hits())
     print("   trecho:", primeiro_cit())
-    print("   chips:", pg.eval_on_selector_all("#chips-leg .chip", "e=>e.slice(0,4).map(x=>x.textContent.trim())"))
-    pg.fill("#f-leg", "cc 1703")
-    pg.wait_for_timeout(600)
-    print("[legislação] 'cc 1703' →", pg.text_content("#rescount"), "|", hits())
-    pg.fill("#f-leg", "")
-    pg.fill("#f-jur", "tema 106")
-    pg.wait_for_timeout(600)
-    print("[jurisprudência] 'tema 106' →", pg.text_content("#rescount"), "|", hits())
+    escolhe("#f-leg", r"13\.146")
+    print("[legislação] lei 13.146 →", pg.text_content("#rescount"), "|", hits())
+    pg.select_option("#f-leg", "")            # limpa p/ medir a jurisprudência sozinha
+    pg.wait_for_timeout(300)
+    escolhe("#f-jur", r"Tema 106")
+    print("[jurisprudência] Tema 106 (legislação limpa) →", pg.text_content("#rescount"), "|", hits())
     print("   trecho:", primeiro_cit())
-    print("   chips:", pg.eval_on_selector_all("#chips-jur .chip", "e=>e.slice(0,4).map(x=>x.textContent.trim())"))
-    pg.fill("#f-leg", "cc 1694")
-    pg.fill("#f-jur", "sumula")
-    pg.wait_for_timeout(600)
-    print("E (leg 'cc 1694' + jur 'sumula') →", pg.text_content("#rescount"), "|", hits())
+    escolhe("#f-leg", r"1\.694")
+    print("E (leg 1.694 + jur Tema 106) →", pg.text_content("#rescount"), "|", hits())
     print("   caixa do leitor:", (pg.text_content("#reader .citbox") or "")[:120].replace("\n", " "))
-    pg.fill("#f-leg", "lei 13146")
-    pg.fill("#f-jur", "")
-    pg.wait_for_timeout(600)
-    print("[legislação] 'lei 13146' →", pg.text_content("#rescount"), "|", hits())
-    pg.fill("#f-leg", "zzz 9999")
-    pg.wait_for_timeout(600)
-    print("sem resultado ('zzz 9999') →", pg.text_content("#rescount"), "|",
-          (pg.text_content("#results .vazio") or "(sem mensagem)")[:90].replace("\n", " "))
-    pg.fill("#f-leg", "")
-    pg.fill("#f-jur", "")
+    escolhe("#f-leg", r"1\.694")
+    escolhe("#f-jur", r"S[úu]mula")
+    print("E (leg 1.694 + jur Súmula) →", pg.text_content("#rescount"), "|", hits())
+    print("   chips leg:", pg.eval_on_selector_all("#chips-leg .chip", "e=>e.slice(0,3).map(x=>x.textContent.trim())"))
+    pg.select_option("#f-leg", "")
+    pg.select_option("#f-jur", "")
     pg.wait_for_timeout(500)
+    # chip → seleciona na lista
+    txt = pg.eval_on_selector("#chips-leg .chip", "e=>e.textContent.trim()")
+    pg.click("#chips-leg .chip")
+    pg.wait_for_timeout(700)
+    print("clique no chip", txt[:38], "→", pg.text_content("#rescount"), "| valor selecionado:",
+          (pg.input_value("#f-leg") or "")[:60])
+    pg.select_option("#f-leg", "")
+    pg.wait_for_timeout(400)
 
     # ---- busca semântica ----
     pg.click("#modeSem")
