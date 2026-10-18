@@ -430,15 +430,25 @@ function resumo(n, ts, tl, tj){
 const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 /* ---------- acervo de citações: chips + sugestões (datalist) ---------- */
-function citacoesDoAcervo(campo){
+/* Uma "citação" é a unidade diplomática/decisão, não o pedaço cortado no ';':
+   em "CPC, arts. 282, § 1º; 341; 355, I; 370, parágrafo único" os pedaços 341 / 355, I são
+   continuação da MESMA citação — sem juntá-los o chip vira "355, I", que não serve de nada. */
+function unidadesCit(campo){
   const m = new Map();
   DATA.forEach((r) => {
-    (r[campo] || '').split(';').map((s) => s.trim()).filter((s) => s.length > 2)
-      .forEach((c) => m.set(c, (m.get(c) || 0) + 1));
+    const unid = [];
+    (r[campo] || '').split(';').forEach((s) => {
+      const t = s.trim().replace(/^[-–—●•\s]+/, '');
+      if (!t) return;
+      const continuacao = /^(?:\d|§|par[áa]grafo|[IVX]+\s*[,.)]|inciso)/i.test(t);
+      if (continuacao && unid.length) unid[unid.length - 1] += '; ' + t;
+      else unid.push(t);
+    });
+    unid.forEach((c) => { if (c.length >= 8) m.set(c, (m.get(c) || 0) + 1); });
   });
   return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 }
-const CITS = { l: citacoesDoAcervo('l'), j: citacoesDoAcervo('j') };
+const CITS = { l: unidadesCit('l'), j: unidadesCit('j') };
 const COBERTURA = { leg: DATA.filter((r) => r.l).length, jur: DATA.filter((r) => r.j).length };
 function preencheDatalist(id, campo){
   $(id).innerHTML = CITS[campo].slice(0, 400)
