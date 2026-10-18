@@ -67,6 +67,82 @@ def limpa_corpo(txt):
     return txt.strip()
 
 
+# ---------------------------------------------------------------- campos de citação
+# Duas buscas dedicadas: [legislação] (artigo e diploma) e [jurisprudência] (decisão,
+# súmula, tema). O campo não é padronizado nas ementas — o rótulo varia ("Dispositivos
+# relevantes citados", "Dispositivos legais", "Legislação relevante citada", "Jurisprudência
+# relevante citada", "Jurisprudências citadas"...) e às vezes vem combinado numa linha só
+# ("Legislação e jurisprudência relevantes: ..."), com as citações de jurisprudência sem
+# rótulo próprio. Verificado contra as 66 ementas do acervo em 17/10/2026.
+CIT_LEG = (r"(?:Dispositivos?(?:\s+(?:relevantes\s+citados|relevantes|citados|legais|normativos))?"
+           r"|Legisla[çc][ãa]o(?:\s+relevantes?)?(?:\s+citad[ao]s?)?)")
+CIT_JUR = r"(?:Jurisprud[êe]nci\s*as?(?:\s+(?:relevantes?|citadas?)(?:\s+citadas?)?)?)"
+CIT_COMB = (r"(?:Legisla[çc][ãa]o\s+e\s+jurisprud[êe]ncia(?:\s+relevantes?(?:\s+citad[ao]s?)?)?"
+            r"|Dispositivos?\s+e\s+jurisprud[êe]ncia(?:\s+relevantes?)?)")
+CIT_ROT = r"(?:%s|%s|%s)" % (CIT_LEG, CIT_JUR, CIT_COMB)
+# marcadores que só aparecem em citação de jurisprudência
+CIT_TRIBS = (r"STF|STJ|TST|TSE|TNU|TRF\d?|TRT\d*|TJPE|TJ-PE|TJ[A-Z]{2}|"
+             r"S[úu]mula(?:\s+Vinculante)?|Tema(?:\s+\d|\s+Repetitivo|\s+da)|"
+             r"ADI|ADC|ADPF|REsp|AREsp|AgInt|AgRg|EDcl|EREsp|EAREsp|RMS|IAC|"
+             r"Incidente\s+de\s+Assun[çc][ãa]o|Repercuss[ãa]o\s+Geral")
+# onde o bloco de citações termina e recomeça o texto do documento
+CIT_FIM = re.compile(r"(?i)\b(?:MA\s*NIFESTA[ÇC][ÃA]O|MANIFESTA[ÇC][ÃA]O|TRATA-SE|Trata-se\s+de|"
+                     r"PARECER|2[ªa]?\s*PROCURADORIA\s+DE\s+JUSTI[ÇC]A|MINIST[ÉE]RIO\s+P[ÚU]BLICO)\b")
+
+
+def _corta_cit(s):
+    m = CIT_FIM.search(s)
+    if m:
+        s = s[:m.start()]
+    return re.split(r"(?m)^\s*(?:#{1,6}\s|\*\*[IVX]+\.|[IVX]+\.\s|_+|-{3,}\s*$)", s)[0]
+
+
+def _limpa_cit(s):
+    s = re.sub(r"\s+", " ", s or "").strip()
+    s = re.sub(r"(?i)[\s\-–—●•*]*\b(?:Jurisprud[êe]ncias?|Legisla[çc][ãa]o|Dispositivos?)\s*"
+               r"(?:relevantes?|citad[ao]s?|legais|normativos)*(?:\s+citad[ao]s?)*\s*:?\s*$", "", s).strip()
+    s = re.sub(r"^[\s:;.,\-–—●•*]+", "", s)
+    s = re.sub(r"[\s:;.,\-–—●•*]+$", "", s)
+    if s.lower().rstrip(".") in ("", "—", "-", "n/a", "nao ha", "não há", "sem jurisprudência citada"):
+        return ""
+    if re.match(r"(?i)^sem\s+jurisprud", s):
+        return ""
+    return s
+
+
+def citacoes(txt):
+    """(legislação, jurisprudência) do campo de citações da ementa — "" quando não há."""
+    # 1) rótulo ocupando a linha inteira (título): o conteúdo é o que vem depois
+    m = re.search(r"(?im)^[ \t]*(?:#{1,6}[ \t]*)?\*{0,2}[ \t]*" + CIT_ROT + r"[ \t]*\*{0,2}[ \t]*:?[ \t]*$", txt)
+    if m:
+        sec = _corta_cit(txt[m.end():]).strip()
+    else:
+        # 2) rótulo inline: começa no rótulo e vai até o fim lógico do bloco
+        m = re.search(r"(?i)\b" + CIT_ROT + r"\b[ \t]*\*{0,2}[ \t]*:", txt)
+        sec = _corta_cit(txt[m.start():]).strip() if m else ""
+    if not sec:
+        return "", ""
+    # rótulo combinado não separa os campos: sai antes de procurar os rótulos individuais
+    sec = re.sub(r"(?i)^\s*\**\s*" + CIT_COMB + r"\s*\*{0,2}\s*:?\s*", "", sec, count=1)
+    mj = re.search(r"(?i)(?<![\w])\**\s*(" + CIT_JUR + r")\s*\*{0,2}\s*:\s*", sec)
+    ml = re.search(r"(?i)(?<![\w])\**\s*(" + CIT_LEG + r")\s*\*{0,2}\s*:\s*", sec)
+    leg = jur = ""
+    if ml:
+        ini = ml.end()
+        leg = sec[ini:mj.start()] if (mj and mj.start() > ini) else (sec[ini:] if not mj else "")
+    if mj:
+        jur = sec[mj.end():]
+    if not leg and not jur:
+        # bloco sem rótulo nenhum: corta no primeiro marcador de jurisprudência
+        mt = re.search(r"(?i)(?:(?<=[\s.;(])|^)(?=(?:" + CIT_TRIBS + r")\b)", sec)
+        leg, jur = (sec[:mt.start()], sec[mt.start():]) if mt else (sec, "")
+    elif not jur:
+        mt = re.search(r"(?i)(?:(?<=[\s.;(])|^)(?=(?:" + CIT_TRIBS + r")\b)", leg)
+        if mt:
+            leg, jur = leg[:mt.start()], leg[mt.start():]
+    return _limpa_cit(leg), _limpa_cit(jur)
+
+
 def acentua(palavra):
     chave = palavra.lower().strip(".,;:()")
     if chave in ACENTOS:
@@ -147,10 +223,12 @@ def registros():
             partes.append({"k": k, "v": v})
 
         iso, br = datas(nome)
+        cit_leg, cit_jur = citacoes(txt)
         rec = {"f": nome, "t": titulo, "p": numero, "cl": classe, "iso": iso, "dt": br,
                "tj": tipo, "oj": campo(txt, "Órgão julgador"), "rel": campo(txt, "Relator"),
                "pj": campo(txt, "Procuradora de Justiça") or campo(txt, "Procurador de Justiça"),
-               "ass": assunto_do_nome(nome), "pt": partes, "e": ementa, "c": corpo}
+               "ass": assunto_do_nome(nome), "pt": partes, "e": ementa, "c": corpo,
+               "l": cit_leg, "j": cit_jur}
         rec["s"] = " ".join([rec["t"], rec["p"], rec["ass"], rec["cl"], rec["oj"], rec["rel"],
                              rec["tj"], " ".join("%s %s" % (x["k"], x["v"]) for x in rec["pt"]),
                              rec["e"], rec["c"]])

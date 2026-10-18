@@ -51,6 +51,46 @@ with sync_playwright() as p:
     pg.select_option("#f-mes", "")
     pg.wait_for_timeout(400)
 
+    # ---- campos de citação: [legislação] e [jurisprudência] ----
+    def hits(n=3):
+        return pg.eval_on_selector_all(".hit h3", "e=>e.slice(0,%d).map(x=>x.textContent)" % n)
+
+    def primeiro_cit():
+        v = pg.query_selector(".hit .snip")
+        return (v.text_content() if v else "")[:150]
+
+    pg.fill("#search", "")
+    pg.fill("#f-leg", "1694")
+    pg.wait_for_timeout(600)
+    print("[legislação] '1694' →", pg.text_content("#rescount"), "|", hits())
+    print("   trecho:", primeiro_cit())
+    print("   chips:", pg.eval_on_selector_all("#chips-leg .chip", "e=>e.slice(0,4).map(x=>x.textContent.trim())"))
+    pg.fill("#f-leg", "cc 1703")
+    pg.wait_for_timeout(600)
+    print("[legislação] 'cc 1703' →", pg.text_content("#rescount"), "|", hits())
+    pg.fill("#f-leg", "")
+    pg.fill("#f-jur", "tema 106")
+    pg.wait_for_timeout(600)
+    print("[jurisprudência] 'tema 106' →", pg.text_content("#rescount"), "|", hits())
+    print("   trecho:", primeiro_cit())
+    print("   chips:", pg.eval_on_selector_all("#chips-jur .chip", "e=>e.slice(0,4).map(x=>x.textContent.trim())"))
+    pg.fill("#f-leg", "cc 1694")
+    pg.fill("#f-jur", "sumula")
+    pg.wait_for_timeout(600)
+    print("E (leg 'cc 1694' + jur 'sumula') →", pg.text_content("#rescount"), "|", hits())
+    print("   caixa do leitor:", (pg.text_content("#reader .citbox") or "")[:120].replace("\n", " "))
+    pg.fill("#f-leg", "lei 13146")
+    pg.fill("#f-jur", "")
+    pg.wait_for_timeout(600)
+    print("[legislação] 'lei 13146' →", pg.text_content("#rescount"), "|", hits())
+    pg.fill("#f-leg", "zzz 9999")
+    pg.wait_for_timeout(600)
+    print("sem resultado ('zzz 9999') →", pg.text_content("#rescount"), "|",
+          (pg.text_content("#results .vazio") or "(sem mensagem)")[:90].replace("\n", " "))
+    pg.fill("#f-leg", "")
+    pg.fill("#f-jur", "")
+    pg.wait_for_timeout(500)
+
     # ---- busca semântica ----
     pg.click("#modeSem")
     pg.fill("#search", "medicamento de crescimento negado pelo plano de saúde")

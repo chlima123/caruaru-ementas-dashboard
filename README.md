@@ -18,6 +18,7 @@ parecer, nenhuma senha e nenhum link de pasta estão versionados aqui — ver a 
 |---|---|
 | **Busca semântica** | Descreva o caso em linguagem natural ("plano de saúde negou o remédio de crescimento"). Os vetores do acervo já vêm embutidos no HTML; o navegador calcula apenas o vetor da consulta (transformers.js) e ordena por similaridade de cosseno. **Nada é enviado a servidor nenhum.** |
 | **Busca por texto exato** | Sem acento, com realce dos termos — para número de processo e citações literais. |
+| **Campos de citação `[legislação]` e `[jurisprudência]`** | Duas consultas que varrem **só** o campo de citações da ementa: `[legislação]` casa artigo e diploma (CC art. 1.694, CDC art. 14, Lei 13.146/2015) e `[jurisprudência]` casa decisão, súmula ou tema (Tema 106, Súmula 7, AgInt no AREsp 2.084.990). Somam-se em **E** com a busca principal e com os filtros; chips mostram as citações do acervo que casam a consulta e o `datalist` sugere as mais frequentes. Atalhos `l` e `j`. |
 | **Filtros** | Classe processual, tipo de documento, mês e relator; aplicam-se às duas buscas. |
 | **Leitor** | Dados do processo, partes e a ementa integral (ou o teor do documento, quando o anexo não tem ementa formal — COTAs, promoções, manifestações). Botões *Copiar ementa* e *Imprimir*. |
 | **KPIs** | Documentos no acervo, com/sem ementa, classes, relatores e período. |
@@ -48,6 +49,28 @@ Drive "Ementas" (.md)          ← cron do perfil sherpa: e-mail "processar emen
 | `verificar.py` | Verificação no Chrome real (Playwright): gate aceita/bloqueia, KPIs, lista, texto exato, filtros e duas consultas semânticas que devem devolver resultados **diferentes** (prova que o `await` do pipeline existe e não caiu no fallback de token). |
 | `config.json` *(local)* | Link da pasta no Drive e ids. Fora do repositório. |
 | `dados.json`, `index.html`, `fonte/` *(gerados)* | Contêm o texto dos pareceres. Fora do repositório. |
+
+## Campos de citação: `[legislação]` e `[jurisprudência]`
+
+Cada ementa do acervo traz, no fim, um campo de citações — mas o rótulo **não é padronizado**:
+aparece como *Dispositivos relevantes citados*, *Dispositivos legais*, *Legislação relevante citada*,
+*Jurisprudência relevante citada*, *Jurisprudências citadas* e, às vezes, tudo numa linha só
+(*Legislação e jurisprudência relevantes: …*), sem rótulo próprio para a parte jurisprudencial.
+
+O `build_dados.py` recorta esse bloco e o separa em dois campos por registro (`"l"` e `"j"`):
+quando há rótulo, corta nele; quando não há, corta no primeiro marcador de jurisprudência
+(`STF`, `STJ`, `TJPE`, `Tema`, `Súmula`, `REsp`, `AgInt`, …). O texto da ementa **não é alterado** —
+a reprodução integral continua íntegra, e os campos existem só para a busca.
+
+No painel, os dois campos são consultas independentes, com casamento por **tokens em E** sobre o
+campo normalizado (sem acento, minúsculo, e ponto/vírgula entre dígitos colapsados: `1.694` → `1694`),
+de modo que `CC 1694` acha *"CC, arts. 1.694, § 1º, 1.699 e 1.703"*. O resultado passa a exibir como
+amostra o **campo de citação que casou**, e o leitor mostra o campo indexado com o trecho realçado.
+
+Cobertura no acervo (17/10/2026, 66 documentos): **44** com campo de legislação e **37** com campo de
+jurisprudência — os demais são COTAs, promoções e abstenções, que não trazem o campo na origem.
+Esse número aparece no KPI do painel e na mensagem de "nenhum resultado", para não confundir
+"não existe no acervo" com "não foi indexado".
 
 ## Busca semântica: por que por trecho, e não por documento
 
