@@ -18,7 +18,7 @@ parecer, nenhuma senha e nenhum link de pasta estão versionados aqui — ver a 
 |---|---|
 | **Busca semântica** | Descreva o caso em linguagem natural ("plano de saúde negou o remédio de crescimento"). Os vetores do acervo já vêm embutidos no HTML; o navegador calcula apenas o vetor da consulta (transformers.js) e ordena por similaridade de cosseno. **Nada é enviado a servidor nenhum.** |
 | **Busca por texto exato** | Sem acento, com realce dos termos — para número de processo e citações literais. |
-| **Campos de citação `[legislação]` e `[jurisprudência]`** | Duas consultas que varrem **só** o campo de citações da ementa: `[legislação]` casa artigo e diploma (CC art. 1.694, CDC art. 14, Lei 13.146/2015) e `[jurisprudência]` casa decisão, súmula ou tema (Tema 106, Súmula 7, AgInt no AREsp 2.084.990). Somam-se em **E** com a busca principal e com os filtros; chips mostram as citações do acervo que casam a consulta e o `datalist` sugere as mais frequentes. Atalhos `l` e `j`. |
+| **Listas de citação `[legislação]` e `[jurisprudência]`** | Duas listas suspensas que varrem **só** o campo de citações da ementa: `[legislação]` casa artigo e diploma (CC art. 1.694, CDC art. 14, Lei 13.146/2015) e `[jurisprudência]` casa decisão, súmula ou tema (Tema 106, Súmula 7, AgInt no AREsp 2.084.990), agrupadas por diploma e por tribunal. Somam-se em **E** com a busca principal e com os filtros. Atalhos `l` e `j`. |
 | **Filtros** | Classe processual, tipo de documento, mês e relator; aplicam-se às duas buscas. |
 | **Leitor** | Dados do processo, partes e a ementa integral (ou o teor do documento, quando o anexo não tem ementa formal — COTAs, promoções, manifestações). Botões *Copiar ementa* e *Imprimir*. |
 | **KPIs** | Documentos no acervo, com/sem ementa, classes, relatores e período. |
@@ -68,7 +68,7 @@ decisões/súmulas/temas, cada item sendo a **citação inteira** (o `;` não se
 agrupamento junta ao item anterior todo pedaço que comece por dígito, `§`, `parágrafo` ou numeral
 romano). Os itens vêm agrupados por **diploma** (CPC 23, CF/1988 9, CC 9, ECA 8 — 41 grupos) e por
 **tribunal** (STJ 38, STF 13, TJPE 12 — 5 grupos), com a contagem de registros entre colchetes e uma
-opção *"todas as citações"* no topo; os chips acima das listas são atalho para as oito mais frequentes.
+opção *"todas as citações"* no topo.
 
 A escolha casa por **tokens em E** sobre o campo normalizado (sem acento, minúsculo, e ponto/vírgula
 entre dígitos colapsados: `1.694` → `1694`) e soma com a busca principal e os filtros. O resultado

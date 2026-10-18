@@ -57,12 +57,6 @@ select{width:100%;font-family:var(--sans);font-size:13px;padding:8px 9px;border:
   background:var(--paper-2);color:var(--ink)}
 .cit input:focus,.cit select:focus{outline:2px solid var(--lat);outline-offset:1px;background:#fff}
 .cit.on select,.cit.on input{border-color:var(--lat);background:#fff;font-weight:600}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.chips:empty{display:none}
-.chip{font-family:var(--mono);font-size:10px;letter-spacing:.03em;border:1px solid var(--line);border-radius:999px;padding:3px 9px;
-  background:var(--paper-2);color:var(--dim);cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.chip:hover{border-color:var(--lat);color:#7a5a14}
-.chip b{font-weight:600;color:#7a5a14}
 .vazio{padding:26px 20px;color:var(--muted);font-size:13.5px;border-top:1px solid var(--line);line-height:1.6}
 .citbox{margin-top:9px;padding:10px 12px;background:var(--paper-2);border:1px dashed var(--line);border-radius:8px;font-size:12.8px;line-height:1.6}
 .citbox .rot{font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--lat);display:block;margin-bottom:3px}
@@ -148,8 +142,6 @@ footer{max-width:1360px;margin:0 auto;padding:0 26px 40px;color:var(--muted);fon
         <select id="f-jur" aria-label="Filtrar por citação de jurisprudência"></select>
       </div>
     </div>
-    <div class="chips" id="chips-leg"></div>
-    <div class="chips" id="chips-jur"></div>
     <div class="filters">
       <div><label for="f-cl">Classe</label><select id="f-cl"></select></div>
       <div><label for="f-tj">Documento</label><select id="f-tj"></select></div>
@@ -385,7 +377,6 @@ function render(linhas, ts){
       'Escolha outra citação nas listas ou limpe um critério.</div>';
     sel = -1;
     resumo(0, ts, tl, tj);
-    pintaChips();
     return;
   }
   const tpl = $('tpl-hit');
@@ -412,7 +403,6 @@ function render(linhas, ts){
     cont.appendChild(el);
   });
   resumo(linhas.length, ts, tl, tj);
-  pintaChips();
   if (sel >= linhas.length) sel = -1;
   if (linhas.length && sel < 0) abrir(0, false);
 }
@@ -426,10 +416,10 @@ function resumo(n, ts, tl, tj){
 }
 const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-/* ---------- acervo de citações: listas suspensas + chips de atalho ---------- */
+/* ---------- acervo de citações: listas suspensas ---------- */
 /* Uma "citação" é a unidade diplomática/decisão, não o pedaço cortado no ';':
    em "CPC, arts. 282, § 1º; 341; 355, I; 370, parágrafo único" os pedaços 341 / 355, I são
-   continuação da MESMA citação — sem juntá-los o chip vira "355, I", que não serve de nada. */
+   continuação da MESMA citação — sem juntá-los a lista oferece "355, I", que não serve de nada. */
 function unidadesCit(campo){
   const m = new Map();
   DATA.forEach((r) => {
@@ -485,26 +475,6 @@ function rotuloSel(id){
   const txt = (o.textContent || '').replace(/\s*\[\d+\]\s*$/, '');
   return txt.length > 70 ? txt.slice(0, 70) + '…' : txt;
 }
-function pintaChips(){
-  [['l', 'chips-leg', 'f-leg'], ['j', 'chips-jur', 'f-jur']].forEach(([campo, id, alvo]) => {
-    const el = $(id);
-    el.innerHTML = CITS[campo].slice(0, 8).map(([c, n]) =>
-      '<span class="chip" data-cit="' + esc(c).replace(/"/g, '&quot;') + '" title="' + esc(c) + '">' +
-      esc(c.length > 44 ? c.slice(0, 44) + '…' : c) + ' <b>' + n + '</b></span>').join('');
-    el.querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => {
-      const s = $(alvo);
-      s.value = b.dataset.cit;
-      if (s.value !== b.dataset.cit){        // segurança: casa pela forma normalizada
-        const alvoN = normCite(b.dataset.cit);
-        const opt = [...s.options].find((o) => o.value && normCite(o.value) === alvoN);
-        if (opt) s.value = opt.value;
-      }
-      sel = -1;
-      doSearch();
-    }));
-  });
-}
-pintaChips();
 function citacoesBox(r){
   /* painel "por que este registro casou": só aparece com campo de citação ativo */
   const tl = tksLeg(), tj = tksJur();

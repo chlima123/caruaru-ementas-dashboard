@@ -90,17 +90,11 @@ with sync_playwright() as p:
     escolhe("#f-leg", r"1\.694")
     escolhe("#f-jur", r"S[úu]mula")
     print("E (leg 1.694 + jur Súmula) →", pg.text_content("#rescount"), "|", hits())
-    print("   chips leg:", pg.eval_on_selector_all("#chips-leg .chip", "e=>e.slice(0,3).map(x=>x.textContent.trim())"))
+    print("faixas de chips removidas:", pg.eval_on_selector_all(".chips", "e=>e.length") == 0,
+          "| listas no lugar:", pg.eval_on_selector_all("#f-leg option", "e=>e.length"), "/",
+          pg.eval_on_selector_all("#f-jur option", "e=>e.length"))
     pg.select_option("#f-leg", "")
     pg.select_option("#f-jur", "")
-    pg.wait_for_timeout(500)
-    # chip → seleciona na lista
-    txt = pg.eval_on_selector("#chips-leg .chip", "e=>e.textContent.trim()")
-    pg.click("#chips-leg .chip")
-    pg.wait_for_timeout(700)
-    print("clique no chip", txt[:38], "→", pg.text_content("#rescount"), "| valor selecionado:",
-          (pg.input_value("#f-leg") or "")[:60])
-    pg.select_option("#f-leg", "")
     pg.wait_for_timeout(400)
 
     # ---- busca semântica ----
