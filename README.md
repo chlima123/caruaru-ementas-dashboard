@@ -50,7 +50,7 @@ Drive "Ementas" (.md)          ← cron do perfil sherpa: e-mail "processar emen
 | `config.json` *(local)* | Link da pasta no Drive e ids. Fora do repositório. |
 | `dados.json`, `index.html`, `fonte/` *(gerados)* | Contêm o texto dos pareceres. Fora do repositório. |
 
-## Campos de citação: `[legislação]` e `[jurisprudência]`
+## Listas suspensas de citação: `[legislação]` e `[jurisprudência]`
 
 Cada ementa do acervo traz, no fim, um campo de citações — mas o rótulo **não é padronizado**:
 aparece como *Dispositivos relevantes citados*, *Dispositivos legais*, *Legislação relevante citada*,
@@ -62,10 +62,23 @@ quando há rótulo, corta nele; quando não há, corta no primeiro marcador de j
 (`STF`, `STJ`, `TJPE`, `Tema`, `Súmula`, `REsp`, `AgInt`, …). O texto da ementa **não é alterado** —
 a reprodução integral continua íntegra, e os campos existem só para a busca.
 
-No painel, os dois campos são consultas independentes, com casamento por **tokens em E** sobre o
-campo normalizado (sem acento, minúsculo, e ponto/vírgula entre dígitos colapsados: `1.694` → `1694`),
-de modo que `CC 1694` acha *"CC, arts. 1.694, § 1º, 1.699 e 1.703"*. O resultado passa a exibir como
-amostra o **campo de citação que casou**, e o leitor mostra o campo indexado com o trecho realçado.
+No painel as duas consultas são **listas suspensas**, não campos de texto: **108** dispositivos e **78**
+decisões/súmulas/temas, cada item sendo a **citação inteira** (o `;` não separa citações — em
+`CPC, arts. 282, § 1º; 341; 355, I` os pedaços `341` e `355, I` são continuação da mesma citação, e o
+agrupamento junta ao item anterior todo pedaço que comece por dígito, `§`, `parágrafo` ou numeral
+romano). Os itens vêm agrupados por **diploma** (CPC 23, CF/1988 9, CC 9, ECA 8 — 41 grupos) e por
+**tribunal** (STJ 38, STF 13, TJPE 12 — 5 grupos), com a contagem de registros entre colchetes e uma
+opção *"todas as citações"* no topo; os chips acima das listas são atalho para as oito mais frequentes.
+
+A escolha casa por **tokens em E** sobre o campo normalizado (sem acento, minúsculo, e ponto/vírgula
+entre dígitos colapsados: `1.694` → `1694`) e soma com a busca principal e os filtros. O resultado
+exibe como amostra o **campo de citação que casou**, e o leitor mostra o campo indexado com o trecho
+realçado e a citação selecionada no rótulo.
+
+**Invariante verificada a cada versão**: nenhuma opção das listas pode casar zero registros (o usuário
+escolheria uma citação e receberia um vazio), e as contagens exibidas têm de bater com o recálculo fora
+do navegador — hoje são 186 opções, todas com ≥ 1 registro (`verificar.py` + conferência em Python
+sobre `dados.json`).
 
 Cobertura no acervo (17/10/2026, 66 documentos): **44** com campo de legislação e **37** com campo de
 jurisprudência — os demais são COTAs, promoções e abstenções, que não trazem o campo na origem.
