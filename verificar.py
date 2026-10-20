@@ -75,24 +75,29 @@ with sync_playwright() as p:
     print("grupos leg:", pg.eval_on_selector_all("#f-leg optgroup", "e=>e.slice(0,4).map(x=>x.label)"))
     print("grupos jur:", pg.eval_on_selector_all("#f-jur optgroup", "e=>e.slice(0,4).map(x=>x.label)"))
     pg.fill("#search", "")
-    print("escolha leg '1.694' →", escolhe("#f-leg", r"1\.694"), "|", pg.text_content("#rescount"), "|", hits())
+    print("escolha leg 'art. 1.694 · CC' →", escolhe("#f-leg", r"^art\. 1\.694 · CC$"), "|",
+          pg.text_content("#rescount"), "|", hits())
     print("   trecho:", primeiro_cit())
-    escolhe("#f-leg", r"13\.146")
-    print("[legislação] lei 13.146 →", pg.text_content("#rescount"), "|", hits())
+    escolhe("#f-leg", r"^art\. 8º · Lei nº 13\.146/2015$")
+    print("[legislação] art. 8º da Lei 13.146 →", pg.text_content("#rescount"), "|", hits())
     pg.select_option("#f-leg", "")            # limpa p/ medir a jurisprudência sozinha
     pg.wait_for_timeout(300)
     escolhe("#f-jur", r"Tema 106")
-    print("[jurisprudência] Tema 106 (legislação limpa) →", pg.text_content("#rescount"), "|", hits())
+    print("[jurisprudência] STJ · Tema 106 (legislação limpa) →", pg.text_content("#rescount"), "|", hits())
     print("   trecho:", primeiro_cit())
-    escolhe("#f-leg", r"1\.694")
-    print("E (leg 1.694 + jur Tema 106) →", pg.text_content("#rescount"), "|", hits())
+    escolhe("#f-leg", r"^art\. 1\.694 · CC$")
+    print("E (art. 1.694 CC + Tema 106) →", pg.text_content("#rescount"), "|", hits())
     print("   caixa do leitor:", (pg.text_content("#reader .citbox") or "")[:120].replace("\n", " "))
-    escolhe("#f-leg", r"1\.694")
-    escolhe("#f-jur", r"S[úu]mula")
-    print("E (leg 1.694 + jur Súmula) →", pg.text_content("#rescount"), "|", hits())
+    escolhe("#f-leg", r"^art\. 196 · CF/1988$")
+    escolhe("#f-jur", r"^STJ · Tema 106")
+    print("E (art. 196 CF + Tema 106) →", pg.text_content("#rescount"), "|", hits())
+    print("   marcações de realce no trecho:", pg.eval_on_selector_all(".hit .snip mark", "e=>e.slice(0,4).map(x=>x.textContent)"))
     print("faixas de chips removidas:", pg.eval_on_selector_all(".chips", "e=>e.length") == 0,
-          "| listas no lugar:", pg.eval_on_selector_all("#f-leg option", "e=>e.length"), "/",
-          pg.eval_on_selector_all("#f-jur option", "e=>e.length"))
+          "| listas:", pg.eval_on_selector_all("#f-leg option", "e=>e.length"), "/",
+          pg.eval_on_selector_all("#f-jur option", "e=>e.length"),
+          "| grupos: leg", pg.eval_on_selector_all("#f-leg optgroup", "e=>e.length"),
+          "jur", pg.eval_on_selector_all("#f-jur optgroup", "e=>e.length"))
+    print("jur por tribunal:", pg.eval_on_selector_all("#f-jur optgroup", "e=>e.map(g=>g.label)"))
     pg.select_option("#f-leg", "")
     pg.select_option("#f-jur", "")
     pg.wait_for_timeout(400)

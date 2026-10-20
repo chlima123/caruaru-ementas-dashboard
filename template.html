@@ -65,6 +65,7 @@ select{width:100%;font-family:var(--sans);font-size:13px;padding:8px 9px;border:
 .rot-cit{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--lat)}
 .hit .snip mark{background:var(--lat-soft);color:inherit}
 .hint{font-size:12px;color:var(--muted);margin-top:9px;line-height:1.5}
+  .siglas{border-top:1px dashed var(--border);padding-top:8px}
 .status{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .pill{border:1px solid var(--line);border-radius:999px;padding:2px 9px;background:var(--paper-2)}
 .pill.on{border-color:var(--lat);background:var(--lat-soft);color:#7a5a14}
@@ -152,10 +153,23 @@ footer{max-width:1360px;margin:0 auto;padding:0 26px 40px;color:var(--muted);fon
       <span id="semStatus" class="pill">busca semântica: aguardando consulta</span>
       <span class="pill">/ busca · l [legislação] · j [jurisprudência] · ↑↓ navega · Esc limpa</span>
     </div>
-    <div class="hint">As duas <b>listas suspensas</b> de citação varrem <b>só</b> o campo de citações de cada registro — <b>[legislação]</b> traz os
-      dispositivos por artigo e diploma (agrupados por diploma) e <b>[jurisprudência]</b> traz decisões, súmulas e temas (agrupados por tribunal),
-      cada item com o número de registros entre colchetes. Os critérios somam com a busca principal e com os filtros (todos precisam casar);
-      deixe em <i>todas as citações</i> para não filtrar.</div>
+    <div class="hint">As duas <b>listas suspensas</b> de citação varrem <b>só</b> o campo de citações de cada registro.
+      A de <b>[legislação]</b> vem <b>primeiro pelo diploma, depois pelo artigo</b>: um grupo por diploma (CPC, CC, CF/1988, ECA, leis federais…)
+      e, dentro dele, <b>uma entrada por artigo em ordem crescente</b> (nada de agrupar artigos);
+      a de <b>[jurisprudência]</b> tem <b>uma entrada por decisão</b> — o mesmo caso citado como <i>AgInt no AREsp nº 1.618.149/SP</i> e como <i>AREsp 1.618.149/SP</i>
+      é uma só, e o tipo vem por extenso (<i>AI = Agravo de Instrumento</i>, <i>AC = Apelação Cível</i>) — agrupada pelo <b>tribunal que a proferiu</b>
+      (STF, STJ, TJPE, TJMG, TJDFT, TJGO). Cada item traz o número de registros entre colchetes.
+      Os critérios somam com a busca principal e com os filtros (todos precisam casar); deixe em <i>todas as citações</i> para não filtrar.</div>
+    <div class="hint siglas"><b>Siglas que aparecem nas decisões:</b>
+      <b>AI</b> = Agravo de Instrumento · <b>AC</b> = Apelação Cível ·
+      <b>IAC</b> = Incidente de Assunção de Competência · <b>HC Cível</b> = <i>habeas corpus</i> ·
+      <b>Proc.</b> = processo ·
+      <b>RE</b>/<b>ARE</b> = recurso extraordinário / agravo em recurso extraordinário ·
+      <b>REsp</b>/<b>AREsp</b>/<b>EREsp</b> = recurso especial / agravo em recurso especial / embargos de divergência ·
+      <b>ADI</b>/<b>ADPF</b> = ação direta de inconstitucionalidade / arguição de descumprimento de preceito fundamental ·
+      <b>RMS</b>/<b>MS</b> = recurso em mandado de segurança / mandado de segurança ·
+      <b>Tema</b> = tema repetitivo (STJ) ou de repercussão geral (STF) ·
+      <b>Súmula</b> = enunciado do próprio tribunal (a <i>Súmula Vinculante</i> é do STF).</div>
     <div class="hint">A busca semântica carrega um modelo multilíngue no navegador na primeira consulta (~1 min); os vetores já vêm embutidos no arquivo, então não há envio de dado a servidor nenhum.</div>
     <div id="rescount"></div>
     <div id="results"></div>
@@ -189,11 +203,22 @@ DATA.forEach((r) => { r._n = norm(r.s); });
 /* normCite: sem acento, minúsculo e ponto/vírgula ENTRE dígitos colapsados (1.694 -> 1694,
    8.069/1990 -> 8069/1990) — é o que faz "1694" achar "CC, art. 1.694, § 1º". */
 const normCite = (s) => norm(s).replace(/(\d)[.,](?=\d)/g, '$1');
-DATA.forEach((r) => { r._l = normCite(r.l); r._j = normCite(r.j); });
 function tokensCit(q){ return normCite(q).split(/[\s,;]+/).filter((t) => t.length >= 2); }
-function casaCampo(tks, campo){ return tks.length ? tks.every((t) => campo.indexOf(t) >= 0) : true; }
-const tksLeg = () => tokensCit($('f-leg').value);
-const tksJur = () => tokensCit($('f-jur').value);
+/* A busca é por IGUALDADE: o valor da lista é a própria citação (artigo ou decisão). */
+const legSel = () => $('f-leg').value || '';
+const jurSel = () => $('f-jur').value || '';
+function temCit(r, campo, alvo){
+  if (!alvo) return true;
+  return (r[campo] || []).some(([lab]) => lab === alvo);
+}
+/* realce: só os números da citação escolhida (artigo, tema, súmula, processo) */
+function tksDe(alvo, campo){
+  if (!alvo) return [];
+  const id = campo === 'l' ? (alvo.match(/^art\.\s*([\w.º-]+)/) || [null, ''])[1] : alvo.split(' · ')[1] || '';
+  return tokensCit(id).filter((t) => /\d/.test(t) && (t.replace(/\D/g, '').length >= 3));
+}
+const tksLeg = () => tksDe(legSel(), 'l');
+const tksJur = () => tksDe(jurSel(), 'j');
 function marcaCampos(){ $('cit-leg').classList.toggle('on', !!$('f-leg').value.trim());
                         $('cit-jur').classList.toggle('on', !!$('f-jur').value.trim()); }
 
@@ -266,7 +291,7 @@ function passaFiltro(r){
          (!$('f-tj').value || r.tj === $('f-tj').value) &&
          (!$('f-mes').value || (r.iso || '').slice(0, 7) === $('f-mes').value) &&
          (!$('f-rel').value || r.rel === $('f-rel').value) &&
-         casaCampo(tksLeg(), r._l) && casaCampo(tksJur(), r._j);
+         temCit(r, 'la', legSel()) && temCit(r, 'ja', jurSel());
 }
 function trecho(r, ts){
   const txt = r.e || r.c || '';
@@ -417,58 +442,85 @@ function resumo(n, ts, tl, tj){
 const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 /* ---------- acervo de citações: listas suspensas ---------- */
-/* Uma "citação" é a unidade diplomática/decisão, não o pedaço cortado no ';':
-   em "CPC, arts. 282, § 1º; 341; 355, I; 370, parágrafo único" os pedaços 341 / 355, I são
-   continuação da MESMA citação — sem juntá-los a lista oferece "355, I", que não serve de nada. */
-function unidadesCit(campo){
+/* A lista de legislação tem UMA ENTRADA POR ARTIGO, sem agrupar artigos, em ordem numeral
+   crescente: "art. 5º · CF/1988", "art. 1.694 · CC"... (o par diploma/artigo é montado no
+   build, em `la`). A de jurisprudência tem uma entrada por DECISÃO, já normalizada (o
+   "AgInt no AREsp nº X/UF" e o "AREsp X/UF" são a mesma decisão), agrupada pelo TRIBUNAL
+   EMISSOR — é o que redistribui "outros tribunais e súmulas" nos seus tribunais. */
+const LEG = (function(){
   const m = new Map();
-  DATA.forEach((r) => {
-    const unid = [];
-    (r[campo] || '').split(';').forEach((s) => {
-      const t = s.trim().replace(/^[-–—●•\s]+/, '');
-      if (!t) return;
-      const continuacao = /^(?:\d|§|par[áa]grafo|[IVX]+\s*[,.)]|inciso)/i.test(t);
-      if (continuacao && unid.length) unid[unid.length - 1] += '; ' + t;
-      else unid.push(t);
-    });
-    unid.forEach((c) => { if (c.length >= 8) m.set(c, (m.get(c) || 0) + 1); });
-  });
-  return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  DATA.forEach((r) => (r.la || []).forEach(([lab, num]) => {
+    const a = m.get(lab);
+    if (a) a[1]++; else m.set(lab, [num, 1]);
+  }));
+  return [...m.entries()].map(([lab, [num, n]]) => ({ lab, num, n }))
+    .sort((a, b) => (a.num === 0 ? 1 : 0) - (b.num === 0 ? 1 : 0) || a.num - b.num ||
+                     a.lab.localeCompare(b.lab, 'pt-BR'));
+})();
+const JUR = (function(){
+  const m = new Map();
+  DATA.forEach((r) => (r.ja || []).forEach(([lab, rank]) => {
+    const a = m.get(lab);
+    if (a) a[1]++; else m.set(lab, [rank, 1]);
+  }));
+  return [...m.entries()].map(([lab, [rank, n]]) => ({ lab, rank, n }));
+})();
+const COBERTURA = { leg: DATA.filter((r) => (r.la || []).length).length,
+                    jur: DATA.filter((r) => (r.ja || []).length).length };
+function numDeLab(lab){
+  const m = lab.match(/^art\.\s*([\d.]+)/);
+  return m ? parseInt(m[1].replace(/\./g, ''), 10) : 0;
 }
-const CITS = { l: unidadesCit('l'), j: unidadesCit('j') };
-const COBERTURA = { leg: DATA.filter((r) => r.l).length, jur: DATA.filter((r) => r.j).length };
-/* Agrupa por diploma (legislação) ou por tribunal (jurisprudência) — o "cabeçalho" da unidade. */
-function grupoCit(campo, t){
-  if (campo === 'l'){
-    const cab = t.split(',')[0].trim();
-    if (/^(?:arts?\.|§|\d|par[áa]grafo)/i.test(cab)) return 'Outros dispositivos';
-    return cab.length > 30 ? cab.slice(0, 30) + '…' : cab;
-  }
-  const p = (t.match(/^([A-ZÀ-Ý][A-Za-zÀ-ÿ]*)/) || [null, ''])[1];
-  return (/^(?:STF|STJ|TST|TSE|TNU|TRF\d?|TJPE|TJ-PE|TJ[A-Z]{2})$/.test(p)) ? p : 'Outros tribunais e súmulas';
+/* [legislação]: primeiro o DIPLOMA, depois o ARTIGO — um grupo por diploma (CPC, CC, CF/1988,
+   ECA, leis federais…), com os artigos em ordem crescente dentro do grupo. */
+function diplDeLab(lab){
+  if (lab.indexOf(' · ') >= 0) return lab.slice(lab.indexOf(' · ') + 3);
+  const m = lab.match(/^(.*?)\s*\(sem artigo indicado\)\s*$/);
+  return m ? m[1] : lab;
 }
-function montaLista(id, campo){
+function montaListaLeg(){
   const grupos = new Map();
-  CITS[campo].forEach(([t, n]) => {
-    const g = grupoCit(campo, t);
+  LEG.forEach((o) => {
+    const g = diplDeLab(o.lab);
     if (!grupos.has(g)) grupos.set(g, []);
-    grupos.get(g).push([t, n]);
+    grupos.get(g).push(o);
   });
-  const ordem = [...grupos.entries()]
-    .sort((a, b) => b[1].reduce((s, [, n]) => s + n, 0) - a[1].reduce((s, [, n]) => s + n, 0) ||
-                     a[0].localeCompare(b[0], 'pt-BR'));
-  const html = ['<option value="">— ' +
-    (campo === 'l' ? 'todas as citações de legislação' : 'todas as citações de jurisprudência') +
-    ' (' + CITS[campo].length + ') —</option>'];
+  const ordem = [...grupos.entries()].sort((a, b) =>
+    b[1].reduce((s, o) => s + o.n, 0) - a[1].reduce((s, o) => s + o.n, 0) ||
+    a[0].localeCompare(b[0], 'pt-BR', { numeric: true }));
+  const html = ['<option value="">— todas as citações de legislação (' + LEG.length + ') —</option>'];
   ordem.forEach(([g, itens]) => {
+    itens.sort((a, b) => (a.num === 0 ? 1 : 0) - (b.num === 0 ? 1 : 0) ||
+      a.num - b.num || a.lab.localeCompare(b.lab, 'pt-BR'));
     html.push('<optgroup label="' + esc(g) + ' · ' + itens.length + '">' +
-      itens.map(([t, n]) => '<option value="' + esc(t).replace(/"/g, '&quot;') + '">' +
-        esc(t.length > 100 ? t.slice(0, 100) + '…' : t) + '  [' + n + ']</option>').join('') + '</optgroup>');
+      itens.map(({ lab, n }) => '<option value="' + esc(lab).replace(/"/g, '&quot;') + '">' +
+        esc(lab) + '  [' + n + ']</option>').join('') + '</optgroup>');
   });
-  $(id).innerHTML = html.join('');
+  $('f-leg').innerHTML = html.join('');
 }
-montaLista('f-leg', 'l');
-montaLista('f-jur', 'j');
+function montaListaJur(){
+  const grupos = new Map();
+  JUR.forEach((o) => {
+    const g = o.lab.split(' · ')[0];
+    if (!grupos.has(g)) grupos.set(g, []);
+    grupos.get(g).push(o);
+  });
+  const ordem = [...grupos.entries()].sort((a, b) =>
+    b[1].reduce((s, o) => s + o.n, 0) - a[1].reduce((s, o) => s + o.n, 0) ||
+    a[0].localeCompare(b[0], 'pt-BR'));
+  const html = ['<option value="">— todas as citações de jurisprudência (' + JUR.length + ') —</option>'];
+  ordem.forEach(([g, itens]) => {
+    itens.sort((a, b) => a.rank - b.rank ||
+      a.lab.localeCompare(b.lab, 'pt-BR', { numeric: true }));
+    html.push('<optgroup label="' + esc(g) + ' · ' + itens.length + '">' +
+      itens.map(({ lab, n }) => '<option value="' + esc(lab).replace(/"/g, '&quot;') + '">' +
+        esc(lab) + '  [' + n + ']</option>').join('') + '</optgroup>');
+  });
+  $('f-jur').innerHTML = html.join('');
+}
+montaListaLeg();
+montaListaJur();
+
 function rotuloSel(id){
   const el = $(id), o = el.options[el.selectedIndex];
   if (!o || !o.value) return '';
