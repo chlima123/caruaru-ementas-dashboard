@@ -322,6 +322,10 @@ TRIBUNAIS = (r"(?:STF|STJ|TST|TSE|TNU|STM|TRF\s?-?\s?\d|TRT\s?-?\s?\d{1,2}|"
              r"TJ-?PE|TJ-?DFT|TJ-?MG|TJ-?GO|TJ-?SP|TJ-?RJ|TJ-?BA|TJ-?CE|TJ-?RN|TJ[A-Z]{2})")
 TIPOS_CASO = (r"(?:EAREsp|AREsp|EREsp|REsp|AgInt|AgRg|EDcl|ADI|ADPF|ADC|ADO|ARE|RE|"
               r"RMS|MS|RHC|HC|SL|CC|Pet|MI)")
+# controle concentrado do STF: os números são curtos (ADC 41, ADC 58, ADI 1, ADPF 54) e o
+# padrão de número acima (3+ caracteres) os descartava — a citação existia na ementa e não
+# entrava na lista de [jurisprudência]
+CONTROLE = r"(?:ADI|ADC|ADPF|ADO)"
 CIT_INI = re.compile(
     r"(?:(?<=[.;:•\-–])\s*|(?<=,)\s+|\s+e\s+|^)"
     r"(?=(?:" + TRIBUNAIS + r"|S[úu]mulas?|Tema|" + TIPOS_CASO +
@@ -401,6 +405,13 @@ def _id_decisao(p):
             base = "AREsp"
         rot = base + " " + num + (("/" + uf) if uf else "")
         return (2, base, num, uf, rot)
+    mcon = re.search(r"\b(" + CONTROLE + r")\b\s*(?:n[ºo°]?\s*)?(\d{1,4})(?:-(\d+))?\b"
+                     r"(?:\s*/\s*([A-Za-z]{2})\b)?", p, re.I)
+    if mcon:
+        base = mcon.group(1).upper()
+        num = mcon.group(2) + (("-" + mcon.group(3)) if mcon.group(3) else "")
+        uf = (mcon.group(4) or "").upper() or None
+        return (2, base, num, uf, base + " " + num + (("/" + uf) if uf else ""))
     return None
 
 def _expande_cit_jur(t):

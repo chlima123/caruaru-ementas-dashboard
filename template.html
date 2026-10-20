@@ -166,7 +166,8 @@ footer{max-width:1360px;margin:0 auto;padding:0 26px 40px;color:var(--muted);fon
       <b>Proc.</b> = processo ·
       <b>RE</b>/<b>ARE</b> = recurso extraordinário / agravo em recurso extraordinário ·
       <b>REsp</b>/<b>AREsp</b>/<b>EREsp</b> = recurso especial / agravo em recurso especial / embargos de divergência ·
-      <b>ADI</b>/<b>ADPF</b> = ação direta de inconstitucionalidade / arguição de descumprimento de preceito fundamental ·
+      <b>ADI</b>/<b>ADC</b>/<b>ADPF</b> = ação direta de inconstitucionalidade / ação direta de
+      constitucionalidade / arguição de descumprimento de preceito fundamental (as três do STF) ·
       <b>RMS</b>/<b>MS</b> = recurso em mandado de segurança / mandado de segurança ·
       <b>Tema</b> = tema repetitivo (STJ) ou de repercussão geral (STF) ·
       <b>Súmula</b> = enunciado do próprio tribunal (a <i>Súmula Vinculante</i> é do STF).</div>
@@ -215,7 +216,9 @@ function temCit(r, campo, alvo){
 function tksDe(alvo, campo){
   if (!alvo) return [];
   const id = campo === 'l' ? (alvo.match(/^art\.\s*([\w.º-]+)/) || [null, ''])[1] : alvo.split(' · ')[1] || '';
-  return tokensCit(id).filter((t) => /\d/.test(t) && (t.replace(/\D/g, '').length >= 3));
+  /* controle concentrado do STF tem número curto (ADC 41, ADI 1): 2 dígitos já contam */
+  const curto = /^(ADI|ADC|ADPF|ADO)\b/.test(id);
+  return tokensCit(id).filter((t) => /\d/.test(t) && (t.replace(/\D/g, '').length >= (curto ? 2 : 3)));
 }
 const tksLeg = () => tksDe(legSel(), 'l');
 const tksJur = () => tksDe(jurSel(), 'j');
