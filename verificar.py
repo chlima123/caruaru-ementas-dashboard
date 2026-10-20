@@ -39,9 +39,12 @@ with sync_playwright() as p:
     print("texto 'autismo' →", pg.eval_on_selector_all(".hit h3", "e=>e.slice(0,3).map(x=>x.textContent)"))
     print("  contador:", pg.text_content("#rescount"))
 
+    pg.fill("#search", "")                       # o filtro de classe é medido SOZINHO, sem o texto
+    pg.wait_for_timeout(300)
     pg.select_option("#f-cl", "HABEAS CORPUS")
     pg.wait_for_timeout(600)
-    print("filtro classe=HABEAS CORPUS →", pg.eval_on_selector_all(".hit h3", "e=>e.map(x=>x.textContent)"))
+    print("filtro classe=HABEAS CORPUS →", pg.text_content("#rescount"), "|",
+          pg.eval_on_selector_all(".hit h3", "e=>e.map(x=>x.textContent)"))
 
     pg.fill("#search", "")
     pg.select_option("#f-cl", "")
