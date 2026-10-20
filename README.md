@@ -62,12 +62,12 @@ quando há rótulo, corta nele; quando não há, corta no primeiro marcador de j
 (`STF`, `STJ`, `TJPE`, `Tema`, `Súmula`, `REsp`, `AgInt`, …). O texto da ementa **não é alterado** —
 a reprodução integral continua íntegra, e os campos existem só para a busca.
 
-No painel as duas consultas são **listas suspensas**, não campos de texto: **108** dispositivos e **78**
+No painel as duas consultas são **listas suspensas**, não campos de texto: **159** dispositivos e **99**
 decisões/súmulas/temas, cada item sendo a **citação inteira** (o `;` não separa citações — em
 `CPC, arts. 282, § 1º; 341; 355, I` os pedaços `341` e `355, I` são continuação da mesma citação, e o
 agrupamento junta ao item anterior todo pedaço que comece por dígito, `§`, `parágrafo` ou numeral
-romano). Os itens vêm agrupados por **diploma** (CPC 23, CF/1988 9, CC 9, ECA 8 — 41 grupos) e por
-**tribunal** (STJ 38, STF 13, TJPE 12 — 5 grupos), com a contagem de registros entre colchetes e uma
+romano). Os itens vêm agrupados por **diploma** (CPC 62, CC 24, CF/1988 18, ECA 15 — 30 grupos) e por
+**tribunal** (STJ 49, TJPE 23, STF 20 — 7 grupos), com a contagem de registros entre colchetes e uma
 opção *"todas as citações"* no topo.
 
 A escolha casa por **tokens em E** sobre o campo normalizado (sem acento, minúsculo, e ponto/vírgula
@@ -77,10 +77,10 @@ realçado e a citação selecionada no rótulo.
 
 **Invariante verificada a cada versão**: nenhuma opção das listas pode casar zero registros (o usuário
 escolheria uma citação e receberia um vazio), e as contagens exibidas têm de bater com o recálculo fora
-do navegador — hoje são 186 opções, todas com ≥ 1 registro (`verificar.py` + conferência em Python
+do navegador — hoje são 258 opções, todas com ≥ 1 registro (`verificar.py` + conferência em Python
 sobre `dados.json`).
 
-Cobertura no acervo (17/10/2026, 66 documentos): **44** com campo de legislação e **37** com campo de
+Cobertura no acervo (20/10/2026, 72 documentos): **50** com campo de legislação e **40** com campo de
 jurisprudência — os demais são COTAs, promoções e abstenções, que não trazem o campo na origem.
 Esse número aparece no KPI do painel e na mensagem de "nenhum resultado", para não confundir
 "não existe no acervo" com "não foi indexado".
@@ -125,7 +125,7 @@ python3 verificar.py http://127.0.0.1:8899/index.html
 python3 verificar.py https://caruaru-ementas.vercel.app
 ```
 
-O `index.html` publicado tem ~1,3 MB com 66 documentos (o acervo inteiro + os vetores). O `build_dados.py` leva ~1 min
+O `index.html` publicado tem ~1,85 MB com 72 documentos (o acervo inteiro + os vetores). O `build_dados.py` leva ~1 min
 (baixa ~458 MB do modelo na primeira vez e fica em cache em `~/.cache/huggingface`).
 
 ## Privacidade — o que **não** está aqui
