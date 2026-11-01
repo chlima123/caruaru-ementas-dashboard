@@ -330,16 +330,23 @@ CIT_INI = re.compile(
     r"(?:(?<=[.;:•\-–])\s*|(?<=,)\s+|\s+e\s+|^)"
     r"(?=(?:" + TRIBUNAIS + r"|S[úu]mulas?|Tema|" + TIPOS_CASO +
     r"|Incidente|Apela[çc][ãa]o|Agravo|Embargos|Pedido\s+de|Proc\.))", re.I)
-UF_TJ = {"17": "TJPE", "13": "TJMG", "07": "TJDFT", "09": "TJGO", "26": "TJSP",
-         "19": "TJRJ", "21": "TJRS", "05": "TJBA", "06": "TJCE"}
+# código de UF no número do processo (.8.UF.NNNN) → sigla do tribunal. Completo: um código
+# ausente virava "TJ-16" na lista de [jurisprudência] em vez de TJPR.
+UF_TJ = {"01": "TJAC", "02": "TJAL", "03": "TJAP", "04": "TJAM", "05": "TJBA", "06": "TJCE",
+         "07": "TJDFT", "08": "TJES", "09": "TJGO", "10": "TJMA", "11": "TJMT", "12": "TJMS",
+         "13": "TJMG", "14": "TJPA", "15": "TJPB", "16": "TJPR", "17": "TJPE", "18": "TJPI",
+         "19": "TJRJ", "20": "TJRN", "21": "TJRS", "22": "TJRO", "23": "TJRR", "24": "TJSC",
+         "25": "TJSE", "26": "TJSP", "27": "TJTO"}
 TEMA_CASO = {}
 # sigla + nome por extenso (o leitor confere a sigla sem sair da lista)
 AI_LAB, AC_LAB, IAC_LAB = ("AI (Agravo de Instrumento)", "AC (Apelação Cível)",
                            "IAC (Incidente de Assunção de Competência)")
 
 def norm_trib(t):
-    t = re.sub(r"[\s.]", "", t).upper()
-    return {"TJ-PE": "TJPE", "TJDFT": "TJDFT"}.get(t, t)
+    # "TJ-PE"/"TJ-RJ" e "TJPE"/"TJRJ" são o mesmo tribunal: a sigla sai sempre sem hífen,
+    # senão a mesma corte aparece em dois grupos da lista de [jurisprudência]
+    t = re.sub(r"[\s.\-]", "", t).upper()
+    return t
 
 def _trib_do_texto(p, anterior=None):
     m = re.search(TRIBUNAIS, p, re.I)
