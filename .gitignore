@@ -16,3 +16,6 @@ __pycache__/
 bloco*.js
 
 # OBS: .vercel/ entra no repo de propósito (projectId/orgId do projeto — não é segredo)
+
+# ruído do Finder
+.DS_Store
