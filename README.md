@@ -77,10 +77,10 @@ realçado e a citação selecionada no rótulo.
 
 **Invariante verificada a cada versão**: nenhuma opção das listas pode casar zero registros (o usuário
 escolheria uma citação e receberia um vazio), e as contagens exibidas têm de bater com o recálculo fora
-do navegador — hoje são 258 opções, todas com ≥ 1 registro (`verificar.py` + conferência em Python
+do navegador — hoje são 405 opções (237 de legislação + 168 de jurisprudência), todas com ≥ 1 registro (`verificar.py` + conferência em Python
 sobre `dados.json`).
 
-Cobertura no acervo (20/10/2026, 72 documentos): **50** com campo de legislação e **40** com campo de
+Cobertura no acervo (01/11/2026, 107 documentos): **80** com campo de legislação e **61** com campo de
 jurisprudência — os demais são COTAs, promoções e abstenções, que não trazem o campo na origem.
 Esse número aparece no KPI do painel e na mensagem de "nenhum resultado", para não confundir
 "não existe no acervo" com "não foi indexado".
@@ -125,7 +125,7 @@ python3 verificar.py http://127.0.0.1:8899/index.html
 python3 verificar.py https://caruaru-ementas.vercel.app
 ```
 
-O `index.html` publicado tem ~1,85 MB com 72 documentos (o acervo inteiro + os vetores). O `build_dados.py` leva ~1 min
+O `index.html` publicado tem ~4,66 MB com 107 documentos (o acervo inteiro + os vetores). O `build_dados.py` leva ~1 min
 (baixa ~458 MB do modelo na primeira vez e fica em cache em `~/.cache/huggingface`).
 
 ## Privacidade — o que **não** está aqui
